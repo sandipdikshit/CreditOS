@@ -1,0 +1,2281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CreditOS — Continuous Risk Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c14;
+    --bg2: #0d1220;
+    --bg3: #111827;
+    --panel: #131d2e;
+    --panel2: #1a2640;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59,130,246,0.15);
+    --cyan: #22d3ee;
+    --green: #10b981;
+    --green-dim: rgba(16,185,129,0.15);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245,158,11,0.15);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.15);
+    --purple: #8b5cf6;
+    --text: #f0f4ff;
+    --text2: #94a3b8;
+    --text3: #4a5568;
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── TOP NAV ── */
+  .topnav {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    height: 56px;
+    background: rgba(8,12,20,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 20px;
+    gap: 0;
+  }
+
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    margin-right: 32px;
+    flex-shrink: 0;
+  }
+
+  .logo span { color: var(--cyan); }
+
+  .nav-items {
+    display: flex; gap: 2px;
+    flex: 1;
+  }
+
+  .nav-item {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    font-family: var(--font-body);
+  }
+
+  .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+  .nav-item.active { color: var(--text); background: var(--panel2); }
+
+  .nav-right {
+    display: flex; align-items: center; gap: 12px;
+    margin-left: auto; flex-shrink: 0;
+  }
+
+  .search-bar {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: var(--text2);
+    font-size: 12px;
+    font-family: var(--font-body);
+    width: 180px;
+    outline: none;
+  }
+
+  .search-bar::placeholder { color: var(--text3); }
+  .search-bar:focus { border-color: var(--blue); color: var(--text); }
+
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ── ALERT TICKER ── */
+  .alert-ticker {
+    position: fixed; top: 56px; left:0; right:0; z-index:99;
+    height: 32px;
+    background: linear-gradient(90deg, rgba(239,68,68,0.08), rgba(245,158,11,0.08));
+    border-bottom: 1px solid rgba(239,68,68,0.2);
+    display: flex; align-items: center;
+    padding: 0 20px;
+    overflow: hidden;
+  }
+
+  .ticker-label {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--red);
+    font-weight: 500;
+    margin-right: 20px;
+    flex-shrink: 0;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .ticker-scroll {
+    display: flex; gap: 40px;
+    animation: ticker 30s linear infinite;
+    white-space: nowrap;
+  }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .ticker-item {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text2);
+  }
+
+  .ticker-item .t-red { color: var(--red); }
+  .ticker-item .t-amber { color: var(--amber); }
+  .ticker-item .t-green { color: var(--green); }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    padding-top: 88px;
+    padding-left: 0;
+    min-height: 100vh;
+  }
+
+  .screen { display: none; padding: 24px 28px; }
+  .screen.active { display: block; animation: fadeIn 0.25s ease; }
+
+  @keyframes fadeIn {
+    from { opacity:0; transform: translateY(6px); }
+    to { opacity:1; transform: translateY(0); }
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .screen-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .screen-sub {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 24px;
+  }
+
+  /* ── KPI TILES ── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .kpi-tile {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-tile::before {
+    content: '';
+    position: absolute; top:0; left:0; right:0; height: 2px;
+  }
+
+  .kpi-tile.blue::before { background: var(--blue); }
+  .kpi-tile.green::before { background: var(--green); }
+  .kpi-tile.amber::before { background: var(--amber); }
+  .kpi-tile.red::before { background: var(--red); }
+
+  .kpi-tile:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+  .kpi-label {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .kpi-value {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 6px;
+  }
+
+  .kpi-tile.blue .kpi-value { color: var(--cyan); }
+  .kpi-tile.green .kpi-value { color: var(--green); }
+  .kpi-tile.amber .kpi-value { color: var(--amber); }
+  .kpi-tile.red .kpi-value { color: var(--red); }
+
+  .kpi-delta {
+    font-size: 12px;
+    font-family: var(--font-mono);
+  }
+
+  .delta-up { color: var(--green); }
+  .delta-down { color: var(--red); }
+  .delta-neutral { color: var(--text3); }
+
+  /* ── GRID LAYOUT ── */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  .grid-32 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+  }
+
+  .grid-23 {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 16px;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .panel-title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .panel-badge {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-weight: 500;
+  }
+
+  .badge-red { background: var(--red-dim); color: var(--red); }
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .badge-amber { background: var(--amber-dim); color: var(--amber); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); }
+
+  /* ── SPARKLINE CHART (SVG) ── */
+  .sparkline { width: 100%; height: 60px; }
+
+  /* ── DATA TABLE ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .data-table th {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+  }
+
+  .data-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-body);
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(255,255,255,0.02); cursor: pointer; }
+
+  .conf-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+  }
+
+  .conf-high { background: var(--green-dim); color: var(--green); }
+  .conf-med { background: var(--amber-dim); color: var(--amber); }
+  .conf-low { background: var(--red-dim); color: var(--red); }
+
+  .trend-bar-wrap { width: 80px; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; display:inline-block; }
+  .trend-bar { height: 100%; border-radius: 3px; }
+
+  /* ── HEATMAP ── */
+  .heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
+    margin-top: 12px;
+  }
+
+  .hm-cell {
+    height: 36px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.15s;
+    position: relative;
+  }
+
+  .hm-cell:hover { transform: scale(1.1); z-index: 2; }
+
+  .hm-0 { background: rgba(16,185,129,0.08); color: var(--green); }
+  .hm-1 { background: rgba(16,185,129,0.2); color: var(--green); }
+  .hm-2 { background: rgba(245,158,11,0.15); color: var(--amber); }
+  .hm-3 { background: rgba(245,158,11,0.3); color: var(--amber); }
+  .hm-4 { background: rgba(239,68,68,0.2); color: var(--red); }
+  .hm-5 { background: rgba(239,68,68,0.4); color: var(--red); }
+
+  .hm-labels {
+    display: flex; justify-content: space-between;
+    font-size: 9px;
+    font-family: var(--font-mono);
+    color: var(--text3);
+    margin-top: 8px;
+  }
+
+  /* ── SLIDER ── */
+  .slider-row {
+    display: flex; flex-direction: column; gap: 16px;
+    margin-top: 16px;
+  }
+
+  .slider-item { display: flex; flex-direction: column; gap: 8px; }
+
+  .slider-label {
+    display: flex; justify-content: space-between;
+    font-size: 12px;
+  }
+
+  .slider-name { color: var(--text2); }
+  .slider-val { color: var(--cyan); font-family: var(--font-mono); font-weight: 500; }
+
+  input[type=range] {
+    width: 100%;
+    height: 4px;
+    background: var(--panel2);
+    border-radius: 2px;
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--blue);
+    box-shadow: 0 0 8px var(--blue-glow);
+    cursor: pointer;
+  }
+
+  /* ── CURVE SVG ── */
+  .curve-wrap {
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 16px;
+  }
+
+  /* ── MODEL HEALTH ── */
+  .model-health-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .model-health-row:last-child { border-bottom: none; }
+
+  .model-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .dot-amber { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+  .dot-red { background: var(--red); box-shadow: 0 0 6px var(--red); animation: pulse 1.5s infinite; }
+
+  @keyframes pulse {
+    0%, 100% { opacity:1; }
+    50% { opacity:0.3; }
+  }
+
+  .model-name { font-size: 13px; font-weight: 500; flex: 1; }
+  .model-drift { font-family: var(--font-mono); font-size: 12px; }
+
+  .progress-wrap {
+    width: 80px; height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%; border-radius: 2px;
+    transition: width 0.8s ease;
+  }
+
+  /* ── BENCHMARK BARS ── */
+  .bench-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .bench-item:last-child { border-bottom: none; }
+  .bench-name { font-size: 13px; color: var(--text); width: 160px; flex-shrink: 0; }
+  .bench-bar-track { flex: 1; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+  .bench-bar { height: 100%; border-radius: 4px; }
+  .bench-val { font-family: var(--font-mono); font-size: 12px; width: 40px; text-align: right; flex-shrink: 0; }
+
+  /* ── SIGNAL FEED ── */
+  .signal-feed { display: flex; flex-direction: column; gap: 8px; }
+
+  .signal-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    border-left: 2px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .signal-item:hover { border-left-color: var(--blue); background: rgba(59,130,246,0.04); }
+  .signal-item.sig-red { border-left-color: var(--red); }
+  .signal-item.sig-amber { border-left-color: var(--amber); }
+  .signal-item.sig-green { border-left-color: var(--green); }
+
+  .signal-icon { font-size: 14px; margin-top: 1px; }
+  .signal-content { flex: 1; }
+  .signal-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .signal-meta { font-size: 11px; color: var(--text2); font-family: var(--font-mono); }
+  .signal-time { font-size: 10px; color: var(--text3); font-family: var(--font-mono); flex-shrink: 0; margin-top: 2px; }
+
+  /* ── TAGS ── */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    margin-right: 4px;
+    font-weight: 500;
+  }
+
+  .tag-blue { background: var(--blue-glow); color: var(--blue); }
+  .tag-red { background: var(--red-dim); color: var(--red); }
+  .tag-green { background: var(--green-dim); color: var(--green); }
+  .tag-amber { background: var(--amber-dim); color: var(--amber); }
+  .tag-purple { background: rgba(139,92,246,0.15); color: var(--purple); }
+
+  /* ── FILTER ROW ── */
+  .filter-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 5px 12px;
+    border-radius: 6px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: var(--font-body);
+  }
+
+  .filter-btn:hover, .filter-btn.active { border-color: var(--blue); color: var(--blue); background: var(--blue-glow); }
+
+  /* ── ACTION BTNS ── */
+  .btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    font-family: var(--font-body);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+
+  .btn-primary { background: var(--blue); color: white; }
+  .btn-primary:hover { background: #2563eb; box-shadow: 0 4px 16px rgba(59,130,246,0.3); }
+  .btn-secondary { background: var(--panel2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--border2); }
+  .btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+  .btn-success { background: var(--green-dim); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+
+  /* ── CONN CARD ── */
+  .conn-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .conn-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .conn-card:hover { border-color: var(--blue); }
+  .conn-icon { font-size: 22px; }
+  .conn-name { font-size: 13px; font-weight: 600; }
+  .conn-desc { font-size: 11px; color: var(--text2); }
+  .conn-status { font-size: 10px; font-family: var(--font-mono); }
+
+  /* ── PORTFOLIO COHORT ── */
+  .cohort-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .cohort-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .cohort-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .cohort-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .cohort-size { font-size: 11px; color: var(--text2); font-family: var(--font-mono); margin-bottom: 12px; }
+  .cohort-score { font-family: var(--font-display); font-size: 28px; font-weight: 800; }
+
+  /* ── TOOLTIP ── */
+  .has-tooltip { position: relative; }
+  .tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--panel2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 11px;
+    color: var(--text);
+    white-space: nowrap;
+    z-index: 200;
+    pointer-events: none;
+    font-family: var(--font-body);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+
+  .has-tooltip:hover .tooltip { display: block; }
+
+  /* ── SEGMENT TABS ── */
+  .seg-tabs {
+    display: flex; gap: 4px;
+    padding: 4px;
+    background: var(--bg);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    width: fit-content;
+  }
+
+  .seg-tab {
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .seg-tab.active { background: var(--panel2); color: var(--text); }
+  .seg-tab:hover:not(.active) { color: var(--text); }
+
+  /* ── TOAST ── */
+  .toast-stack {
+    position: fixed; bottom: 24px; right: 24px;
+    display: flex; flex-direction: column; gap: 8px;
+    z-index: 500;
+  }
+
+  .toast {
+    background: var(--panel2);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--blue);
+    border-radius: 8px;
+    padding: 12px 16px;
+    min-width: 280px;
+    animation: slideIn 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  .toast.t-red { border-left-color: var(--red); }
+  .toast.t-amber { border-left-color: var(--amber); }
+  .toast.t-green { border-left-color: var(--green); }
+
+  .toast-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .toast-body { font-size: 11px; color: var(--text2); }
+
+  /* ── SCORE RING ── */
+  .score-ring-wrap {
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    padding: 12px;
+  }
+
+  .score-ring-val {
+    font-family: var(--font-display);
+    font-size: 42px;
+    font-weight: 800;
+    color: var(--cyan);
+    letter-spacing: -2px;
+  }
+
+  .score-ring-label {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text2);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--panel2); border-radius: 3px; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 0;
+  }
+
+  .mt-16 { margin-top: 16px; }
+  .mb-16 { margin-bottom: 16px; }
+  .row { display: flex; align-items: center; gap: 12px; }
+  .flex1 { flex: 1; }
+
+  /* ── REPORT CARD ── */
+  .report-card {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 8px;
+  }
+
+  .report-card:hover { border-color: var(--border2); }
+  .report-icon { font-size: 20px; }
+  .report-info { flex: 1; }
+  .report-name { font-size: 13px; font-weight: 600; }
+  .report-meta { font-size: 11px; color: var(--text2); font-family: var(--font-mono); margin-top: 2px; }
+  .report-actions { display: flex; gap: 8px; }
+
+  /* settings panel */
+  .settings-section-title {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    margin-top: 20px;
+  }
+
+  .settings-section-title:first-child { margin-top: 0; }
+
+  .settings-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .settings-row:last-child { border-bottom: none; }
+
+  .settings-label { font-size: 13px; font-weight: 500; }
+  .settings-desc { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  .toggle {
+    width: 40px; height: 22px;
+    background: var(--panel2);
+    border-radius: 11px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .toggle.on { background: var(--blue); }
+
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: white;
+    transition: all 0.2s;
+  }
+
+  .toggle.on::after { left: 21px; }
+
+  /* Small inline chart made with pure CSS/SVG */
+  .mini-chart { display: block; }
+
+  /* confidence timeline */
+  .timeline-dots {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tdot {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .sim-output {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 16px;
+    text-align: center;
+  }
+
+  .sim-big {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--green);
+    letter-spacing: -1px;
+  }
+
+  .sim-label { font-size: 12px; color: var(--text2); font-family: var(--font-mono); margin-top: 4px; }
+
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="logo">Credit<span>OS</span></div>
+  <div class="nav-items">
+    <div class="nav-item active" onclick="nav('live-risk', this)">Live Risk</div>
+    <div class="nav-item" onclick="nav('stress-radar', this)">Stress Radar</div>
+    <div class="nav-item" onclick="nav('elasticity', this)">Elasticity</div>
+    <div class="nav-item" onclick="nav('control-room', this)">Control Room</div>
+    <div class="nav-item" onclick="nav('portfolios', this)">Portfolios</div>
+    <div class="nav-item" onclick="nav('benchmarks', this)">Benchmarks</div>
+    <div class="nav-item" onclick="nav('reports', this)">Reports</div>
+    <div class="nav-item" onclick="nav('settings', this)">Settings</div>
+  </div>
+  <div class="nav-right">
+    <input class="search-bar" type="text" placeholder="⌕  Search borrower, model, signal…">
+    <div class="avatar">AK</div>
+  </div>
+</nav>
+
+<!-- ALERT TICKER -->
+<div class="alert-ticker">
+  <span class="ticker-label">⚡ Live Signals</span>
+  <div class="ticker-scroll" id="tickerScroll">
+    <span class="ticker-item">MSME-Cohort-7 <span class="t-red">▼ Stress +12%</span></span>
+    <span class="ticker-item">Model CRED-v2.1 <span class="t-amber">Drift Detected 0.31</span></span>
+    <span class="ticker-item">Portfolio MH-West <span class="t-green">Confidence ▲ 83.4</span></span>
+    <span class="ticker-item">Borrower #BRW-9928 <span class="t-red">Delinquency T-minus 21d</span></span>
+    <span class="ticker-item">Elasticity Headroom <span class="t-green">+₹4.2Cr Available</span></span>
+    <span class="ticker-item">NBFC-Delta integration <span class="t-green">Sync OK</span></span>
+    <span class="ticker-item">Bias Alert: Gender Feature <span class="t-amber">Flagged in CRED-v2.1</span></span>
+    <span class="ticker-item">Consumer-Seg-B <span class="t-amber">Stress Trajectory Rising</span></span>
+    <!-- duplicated for seamless loop -->
+    <span class="ticker-item">MSME-Cohort-7 <span class="t-red">▼ Stress +12%</span></span>
+    <span class="ticker-item">Model CRED-v2.1 <span class="t-amber">Drift Detected 0.31</span></span>
+    <span class="ticker-item">Portfolio MH-West <span class="t-green">Confidence ▲ 83.4</span></span>
+    <span class="ticker-item">Borrower #BRW-9928 <span class="t-red">Delinquency T-minus 21d</span></span>
+    <span class="ticker-item">Elasticity Headroom <span class="t-green">+₹4.2Cr Available</span></span>
+    <span class="ticker-item">NBFC-Delta integration <span class="t-green">Sync OK</span></span>
+    <span class="ticker-item">Bias Alert: Gender Feature <span class="t-amber">Flagged in CRED-v2.1</span></span>
+    <span class="ticker-item">Consumer-Seg-B <span class="t-amber">Stress Trajectory Rising</span></span>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SCREEN 1: LIVE RISK HOME                  -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen active" id="screen-live-risk">
+  <div class="screen-title">Live Risk Intelligence</div>
+  <div class="screen-sub">Portfolio-wide confidence & stress signals — as of <span style="color:var(--cyan);font-family:var(--font-mono)">25 Feb 2026 · 10:42 IST</span></div>
+
+  <!-- KPI TILES -->
+  <div class="kpi-row">
+    <div class="kpi-tile blue has-tooltip" onclick="nav('live-risk',null)">
+      <div class="tooltip">Weighted avg confidence across all active borrowers</div>
+      <div class="kpi-label">Portfolio Confidence</div>
+      <div class="kpi-value">78.4</div>
+      <div class="kpi-delta"><span class="delta-up">▲ +2.1</span> <span style="color:var(--text3)">vs last 30d</span></div>
+    </div>
+    <div class="kpi-tile red has-tooltip" onclick="nav('stress-radar',null)">
+      <div class="tooltip">Borrowers showing 3+ stress signals in last 7 days</div>
+      <div class="kpi-label">Stress Red Flags</div>
+      <div class="kpi-value">142</div>
+      <div class="kpi-delta"><span class="delta-down">▲ +18</span> <span style="color:var(--text3)">new this week</span></div>
+    </div>
+    <div class="kpi-tile green has-tooltip" onclick="nav('elasticity',null)">
+      <div class="tooltip">Safe additional credit capacity available across portfolio</div>
+      <div class="kpi-label">Elasticity Headroom</div>
+      <div class="kpi-value">₹47Cr</div>
+      <div class="kpi-delta"><span class="delta-up">▲ +₹3.2Cr</span> <span style="color:var(--text3)">this week</span></div>
+    </div>
+    <div class="kpi-tile amber has-tooltip" onclick="nav('control-room',null)">
+      <div class="tooltip">Models showing statistical drift beyond acceptable threshold</div>
+      <div class="kpi-label">Model Drift Alerts</div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-delta"><span class="delta-neutral">— Same</span> <span style="color:var(--text3)">as yesterday</span></div>
+    </div>
+  </div>
+
+  <div class="grid-32">
+    <!-- MAIN CHART PANEL -->
+    <div class="panel">
+      <div class="panel-title">
+        Confidence Score Trend — All Portfolios
+        <span class="panel-badge badge-blue">LIVE</span>
+      </div>
+      <svg viewBox="0 0 600 140" class="sparkline" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="cg1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="cg2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ef4444" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- grid lines -->
+        <line x1="0" y1="35" x2="600" y2="35" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+        <line x1="0" y1="70" x2="600" y2="70" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+        <line x1="0" y1="105" x2="600" y2="105" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+        <!-- area fill confidence -->
+        <path d="M0,80 C40,75 80,65 120,60 C160,55 200,62 240,58 C280,54 320,48 360,44 C400,40 440,50 480,46 C520,42 560,38 600,35 L600,140 L0,140 Z" fill="url(#cg1)"/>
+        <!-- confidence line -->
+        <path d="M0,80 C40,75 80,65 120,60 C160,55 200,62 240,58 C280,54 320,48 360,44 C400,40 440,50 480,46 C520,42 560,38 600,35" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round"/>
+        <!-- stress area -->
+        <path d="M0,100 C50,98 100,90 150,95 C200,100 250,88 300,85 C350,82 400,92 450,88 C500,84 550,94 600,90 L600,140 L0,140 Z" fill="url(#cg2)"/>
+        <!-- stress line -->
+        <path d="M0,100 C50,98 100,90 150,95 C200,100 250,88 300,85 C350,82 400,92 450,88 C500,84 550,94 600,90" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5,3"/>
+        <!-- current marker -->
+        <circle cx="600" cy="35" r="4" fill="#22d3ee" opacity="0.8"/>
+        <!-- legend -->
+        <circle cx="10" cy="128" r="3" fill="#22d3ee"/>
+        <text x="18" y="132" fill="#94a3b8" font-size="10" font-family="DM Mono">Confidence</text>
+        <circle cx="95" cy="128" r="3" fill="#ef4444"/>
+        <text x="103" y="132" fill="#94a3b8" font-size="10" font-family="DM Mono">Stress Index</text>
+        <!-- x-axis labels -->
+        <text x="0" y="140" fill="#4a5568" font-size="9" font-family="DM Mono">1 Jan</text>
+        <text x="90" y="140" fill="#4a5568" font-size="9" font-family="DM Mono">15 Jan</text>
+        <text x="185" y="140" fill="#4a5568" font-size="9" font-family="DM Mono">1 Feb</text>
+        <text x="280" y="140" fill="#4a5568" font-size="9" font-family="DM Mono">10 Feb</text>
+        <text x="380" y="140" fill="#4a5568" font-size="9" font-family="DM Mono">18 Feb</text>
+        <text x="480" y="140" fill="#4a5568" font-size="9" font-family="DM Mono">24 Feb</text>
+        <text x="570" y="140" fill="#22d3ee" font-size="9" font-family="DM Mono">Now</text>
+      </svg>
+
+      <div class="divider"></div>
+
+      <!-- BORROWER TABLE -->
+      <div class="panel-title" style="margin-top:8px">Top Risk Borrowers
+        <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px">View All</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Borrower ID</th>
+            <th>Segment</th>
+            <th>Conf Score</th>
+            <th>30d Trend</th>
+            <th>Stress Flags</th>
+            <th>Predicted Risk</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr onclick="showToast('BRW-9928 opened in detail view','Confidence drilling down…','blue')">
+            <td><span style="font-family:var(--font-mono);color:var(--cyan)">#BRW-9928</span></td>
+            <td><span class="tag tag-amber">MSME</span></td>
+            <td><span class="conf-pill conf-low">31.2</span></td>
+            <td>
+              <svg width="60" height="20" viewBox="0 0 60 20"><polyline points="0,14 12,16 24,12 36,18 48,8 60,16" fill="none" stroke="#ef4444" stroke-width="1.5"/></svg>
+            </td>
+            <td>🚨 4 flags</td>
+            <td><span class="tag tag-red">High</span></td>
+            <td><button class="btn btn-danger" style="font-size:11px;padding:3px 8px">Review</button></td>
+          </tr>
+          <tr onclick="showToast('BRW-4451 opened in detail view','Monitoring initiated','amber')">
+            <td><span style="font-family:var(--font-mono);color:var(--cyan)">#BRW-4451</span></td>
+            <td><span class="tag tag-blue">Consumer</span></td>
+            <td><span class="conf-pill conf-med">54.7</span></td>
+            <td>
+              <svg width="60" height="20" viewBox="0 0 60 20"><polyline points="0,8 12,10 24,12 36,10 48,14 60,11" fill="none" stroke="#f59e0b" stroke-width="1.5"/></svg>
+            </td>
+            <td>⚠️ 2 flags</td>
+            <td><span class="tag tag-amber">Medium</span></td>
+            <td><button class="btn btn-secondary" style="font-size:11px;padding:3px 8px">Monitor</button></td>
+          </tr>
+          <tr>
+            <td><span style="font-family:var(--font-mono);color:var(--cyan)">#BRW-2201</span></td>
+            <td><span class="tag tag-purple">SBL</span></td>
+            <td><span class="conf-pill conf-med">61.3</span></td>
+            <td>
+              <svg width="60" height="20" viewBox="0 0 60 20"><polyline points="0,12 12,14 24,10 36,12 48,8 60,10" fill="none" stroke="#f59e0b" stroke-width="1.5"/></svg>
+            </td>
+            <td>⚠️ 1 flag</td>
+            <td><span class="tag tag-amber">Medium</span></td>
+            <td><button class="btn btn-secondary" style="font-size:11px;padding:3px 8px">Monitor</button></td>
+          </tr>
+          <tr>
+            <td><span style="font-family:var(--font-mono);color:var(--cyan)">#BRW-7732</span></td>
+            <td><span class="tag tag-green">Agri</span></td>
+            <td><span class="conf-pill conf-high">88.1</span></td>
+            <td>
+              <svg width="60" height="20" viewBox="0 0 60 20"><polyline points="0,16 12,12 24,10 36,8 48,6 60,4" fill="none" stroke="#10b981" stroke-width="1.5"/></svg>
+            </td>
+            <td>✅ Clean</td>
+            <td><span class="tag tag-green">Low</span></td>
+            <td><button class="btn btn-success" style="font-size:11px;padding:3px 8px">Expand</button></td>
+          </tr>
+          <tr>
+            <td><span style="font-family:var(--font-mono);color:var(--cyan)">#BRW-5519</span></td>
+            <td><span class="tag tag-blue">Consumer</span></td>
+            <td><span class="conf-pill conf-high">91.4</span></td>
+            <td>
+              <svg width="60" height="20" viewBox="0 0 60 20"><polyline points="0,14 12,11 24,9 36,7 48,5 60,3" fill="none" stroke="#10b981" stroke-width="1.5"/></svg>
+            </td>
+            <td>✅ Clean</td>
+            <td><span class="tag tag-green">Low</span></td>
+            <td><button class="btn btn-success" style="font-size:11px;padding:3px 8px">Expand</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SIDE PANEL -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="panel">
+        <div class="panel-title">Portfolio Score<span class="panel-badge badge-blue">CCS</span></div>
+        <div class="score-ring-wrap">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#22d3ee" stroke-width="10"
+              stroke-dasharray="245 314" stroke-dashoffset="-40"
+              stroke-linecap="round" style="filter:drop-shadow(0 0 6px #22d3ee)"/>
+            <text x="60" y="55" text-anchor="middle" fill="#f0f4ff" font-size="22" font-weight="800" font-family="Syne">78.4</text>
+            <text x="60" y="72" text-anchor="middle" fill="#94a3b8" font-size="9" font-family="DM Mono">CONFIDENCE</text>
+          </svg>
+        </div>
+        <div class="divider" style="margin:8px 0"></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2)">
+          <span>Active Borrowers</span>
+          <span style="color:var(--text);font-family:var(--font-mono)">18,423</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-top:8px">
+          <span>Portfolio AUM</span>
+          <span style="color:var(--text);font-family:var(--font-mono)">₹2,840 Cr</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-top:8px">
+          <span>NPA Rate</span>
+          <span style="color:var(--green);font-family:var(--font-mono)">1.84%</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Live Signal Feed <span class="panel-badge badge-red">3 Urgent</span></div>
+        <div class="signal-feed">
+          <div class="signal-item sig-red" onclick="nav('stress-radar',null)">
+            <div class="signal-icon">🚨</div>
+            <div class="signal-content">
+              <div class="signal-title">BRW-9928 — Pre-Delinquency</div>
+              <div class="signal-meta">Txn velocity ↓ 68% + Utility payment miss</div>
+            </div>
+            <div class="signal-time">2m ago</div>
+          </div>
+          <div class="signal-item sig-amber" onclick="nav('control-room',null)">
+            <div class="signal-icon">⚠️</div>
+            <div class="signal-content">
+              <div class="signal-title">CRED-v2.1 Drift Detected</div>
+              <div class="signal-meta">PSI = 0.31 · KS stat degraded</div>
+            </div>
+            <div class="signal-time">14m ago</div>
+          </div>
+          <div class="signal-item sig-green" onclick="nav('elasticity',null)">
+            <div class="signal-icon">✅</div>
+            <div class="signal-content">
+              <div class="signal-title">MH-West Confidence Up</div>
+              <div class="signal-meta">Score improved from 76.1 → 83.4</div>
+            </div>
+            <div class="signal-time">1h ago</div>
+          </div>
+          <div class="signal-item sig-amber">
+            <div class="signal-icon">📊</div>
+            <div class="signal-content">
+              <div class="signal-title">Consumer-Seg-B Rising Stress</div>
+              <div class="signal-meta">23 new stress events in cohort</div>
+            </div>
+            <div class="signal-time">2h ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SCREEN 2: STRESS RADAR                    -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen" id="screen-stress-radar">
+  <div class="screen-title">Stress Trajectory Radar</div>
+  <div class="screen-sub">Early warning signal clustering across segments · <span style="color:var(--red);font-family:var(--font-mono)">142 active flags</span></div>
+
+  <div class="kpi-row">
+    <div class="kpi-tile red">
+      <div class="kpi-label">Pre-Delinquency (T-30)</div>
+      <div class="kpi-value">38</div>
+      <div class="kpi-delta"><span class="delta-down">▲ +9 this week</span></div>
+    </div>
+    <div class="kpi-tile amber">
+      <div class="kpi-label">Stress Accumulating</div>
+      <div class="kpi-value">74</div>
+      <div class="kpi-delta"><span class="delta-down">▲ +12 this week</span></div>
+    </div>
+    <div class="kpi-tile blue">
+      <div class="kpi-label">Behavioral Anomalies</div>
+      <div class="kpi-value">30</div>
+      <div class="kpi-delta"><span class="delta-neutral">— Stable</span></div>
+    </div>
+    <div class="kpi-tile green">
+      <div class="kpi-label">Cleared Stress (7d)</div>
+      <div class="kpi-value">22</div>
+      <div class="kpi-delta"><span class="delta-up">▲ +5</span></div>
+    </div>
+  </div>
+
+  <div class="grid-32">
+    <div class="panel">
+      <div class="panel-title">
+        Geographic Stress Heatmap — India Portfolio
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="tag tag-green">Low</span>
+          <span class="tag tag-amber">Med</span>
+          <span class="tag tag-red">High</span>
+        </div>
+      </div>
+
+      <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Each cell = borrower cohort cluster · Hover for details · Click to drill down</p>
+
+      <!-- Heatmap representing cohorts (stylized grid in lieu of geo map) -->
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:16px">
+        <div style="display:flex;flex-direction:column;justify-content:space-between;font-size:9px;font-family:var(--font-mono);color:var(--text3);padding-right:8px;padding-top:4px;padding-bottom:4px">
+          <span>MH</span><span>DL</span><span>KA</span><span>TN</span><span>GJ</span><span>UP</span>
+        </div>
+        <div>
+          <div class="heatmap-grid">
+            <div class="hm-cell hm-0 has-tooltip">12<div class="tooltip">MSME · Conf 84 · 0 flags</div></div>
+            <div class="hm-cell hm-1 has-tooltip">27<div class="tooltip">Consumer · Conf 79 · 1 flag</div></div>
+            <div class="hm-cell hm-2 has-tooltip">45<div class="tooltip">SBL · Conf 68 · 2 flags</div></div>
+            <div class="hm-cell hm-1 has-tooltip">31<div class="tooltip">Agri · Conf 76 · 1 flag</div></div>
+            <div class="hm-cell hm-3 has-tooltip">62<div class="tooltip">MSME · Conf 54 · 3 flags</div></div>
+            <div class="hm-cell hm-5 has-tooltip">19<div class="tooltip">Consumer · Conf 31 · 5 flags ⚠️</div></div>
+            <div class="hm-cell hm-2 has-tooltip">38<div class="tooltip">Consumer · Conf 62 · 2 flags</div></div>
+            <div class="hm-cell hm-0 has-tooltip">54<div class="tooltip">Agri · Conf 88 · 0 flags</div></div>
+            <div class="hm-cell hm-1 has-tooltip">41<div class="tooltip">MSME · Conf 77 · 1 flag</div></div>
+            <div class="hm-cell hm-2 has-tooltip">33<div class="tooltip">SBL · Conf 65 · 2 flags</div></div>
+            <div class="hm-cell hm-4 has-tooltip">28<div class="tooltip">Consumer · Conf 42 · 4 flags</div></div>
+            <div class="hm-cell hm-3 has-tooltip">51<div class="tooltip">MSME · Conf 58 · 3 flags</div></div>
+            <div class="hm-cell hm-1 has-tooltip">44<div class="tooltip">Consumer · Conf 74 · 1 flag</div></div>
+            <div class="hm-cell hm-0 has-tooltip">67<div class="tooltip">Agri · Conf 91 · 0 flags</div></div>
+            <div class="hm-cell hm-2 has-tooltip">29<div class="tooltip">SBL · Conf 63 · 2 flags</div></div>
+            <div class="hm-cell hm-0 has-tooltip">88<div class="tooltip">Consumer · Conf 86 · 0 flags</div></div>
+            <div class="hm-cell hm-1 has-tooltip">52<div class="tooltip">MSME · Conf 78 · 1 flag</div></div>
+            <div class="hm-cell hm-0 has-tooltip">39<div class="tooltip">Agri · Conf 82 · 0 flags</div></div>
+            <div class="hm-cell hm-3 has-tooltip">24<div class="tooltip">Consumer · Conf 51 · 3 flags</div></div>
+            <div class="hm-cell hm-4 has-tooltip">17<div class="tooltip">SBL · Conf 38 · 4 flags ⚠️</div></div>
+            <div class="hm-cell hm-2 has-tooltip">43<div class="tooltip">MSME · Conf 64 · 2 flags</div></div>
+            <div class="hm-cell hm-1 has-tooltip">61<div class="tooltip">Consumer · Conf 75 · 1 flag</div></div>
+            <div class="hm-cell hm-0 has-tooltip">77<div class="tooltip">Agri · Conf 89 · 0 flags</div></div>
+            <div class="hm-cell hm-3 has-tooltip">36<div class="tooltip">SBL · Conf 56 · 3 flags</div></div>
+            <div class="hm-cell hm-5 has-tooltip">14<div class="tooltip">MSME · Conf 27 · 6 flags 🚨</div></div>
+            <div class="hm-cell hm-4 has-tooltip">22<div class="tooltip">Consumer · Conf 39 · 4 flags</div></div>
+            <div class="hm-cell hm-2 has-tooltip">48<div class="tooltip">SBL · Conf 67 · 2 flags</div></div>
+            <div class="hm-cell hm-1 has-tooltip">55<div class="tooltip">Agri · Conf 80 · 1 flag</div></div>
+            <div class="hm-cell hm-0 has-tooltip">71<div class="tooltip">Consumer · Conf 85 · 0 flags</div></div>
+            <div class="hm-cell hm-2 has-tooltip">46<div class="tooltip">MSME · Conf 66 · 2 flags</div></div>
+            <div class="hm-cell hm-1 has-tooltip">34<div class="tooltip">Consumer · Conf 73 · 1 flag</div></div>
+            <div class="hm-cell hm-3 has-tooltip">21<div class="tooltip">SBL · Conf 53 · 3 flags</div></div>
+            <div class="hm-cell hm-0 has-tooltip">63<div class="tooltip">Agri · Conf 87 · 0 flags</div></div>
+            <div class="hm-cell hm-2 has-tooltip">42<div class="tooltip">MSME · Conf 61 · 2 flags</div></div>
+            <div class="hm-cell hm-4 has-tooltip">16<div class="tooltip">Consumer · Conf 41 · 4 flags</div></div>
+            <div class="hm-cell hm-3 has-tooltip">29<div class="tooltip">SBL · Conf 55 · 3 flags</div></div>
+            <div class="hm-cell hm-0 has-tooltip">59<div class="tooltip">Consumer · Conf 88 · 0 flags</div></div>
+            <div class="hm-cell hm-1 has-tooltip">47<div class="tooltip">Agri · Conf 76 · 1 flag</div></div>
+            <div class="hm-cell hm-2 has-tooltip">38<div class="tooltip">MSME · Conf 65 · 2 flags</div></div>
+            <div class="hm-cell hm-5 has-tooltip">11<div class="tooltip">Consumer · Conf 22 · 6 flags 🚨</div></div>
+            <div class="hm-cell hm-1 has-tooltip">53<div class="tooltip">Consumer · Conf 77 · 1 flag</div></div>
+            <div class="hm-cell hm-2 has-tooltip">40<div class="tooltip">MSME · Conf 64 · 2 flags</div></div>
+            <div class="hm-cell hm-0 has-tooltip">66<div class="tooltip">Agri · Conf 90 · 0 flags</div></div>
+            <div class="hm-cell hm-3 has-tooltip">26<div class="tooltip">SBL · Conf 52 · 3 flags</div></div>
+            <div class="hm-cell hm-1 has-tooltip">49<div class="tooltip">Consumer · Conf 79 · 1 flag</div></div>
+            <div class="hm-cell hm-0 has-tooltip">72<div class="tooltip">MSME · Conf 84 · 0 flags</div></div>
+            <div class="hm-cell hm-2 has-tooltip">35<div class="tooltip">Consumer · Conf 63 · 2 flags</div></div>
+            <div class="hm-cell hm-4 has-tooltip">18<div class="tooltip">SBL · Conf 36 · 4 flags ⚠️</div></div>
+            <div class="hm-cell hm-3 has-tooltip">27<div class="tooltip">MSME · Conf 57 · 3 flags</div></div>
+            <div class="hm-cell hm-1 has-tooltip">50<div class="tooltip">Agri · Conf 78 · 1 flag</div></div>
+            <div class="hm-cell hm-0 has-tooltip">68<div class="tooltip">Consumer · Conf 86 · 0 flags</div></div>
+            <div class="hm-cell hm-2 has-tooltip">43<div class="tooltip">MSME · Conf 67 · 2 flags</div></div>
+            <div class="hm-cell hm-5 has-tooltip">13<div class="tooltip">SBL · Conf 24 · 5 flags 🚨</div></div>
+            <div class="hm-cell hm-3 has-tooltip">30<div class="tooltip">Consumer · Conf 53 · 3 flags</div></div>
+            <div class="hm-cell hm-1 has-tooltip">56<div class="tooltip">Agri · Conf 80 · 1 flag</div></div>
+            <div class="hm-cell hm-0 has-tooltip">75<div class="tooltip">MSME · Conf 87 · 0 flags</div></div>
+            <div class="hm-cell hm-2 has-tooltip">37<div class="tooltip">Consumer · Conf 62 · 2 flags</div></div>
+            <div class="hm-cell hm-4 has-tooltip">20<div class="tooltip">SBL · Conf 40 · 4 flags</div></div>
+            <div class="hm-cell hm-0 has-tooltip">64<div class="tooltip">Consumer · Conf 83 · 0 flags</div></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:9px;font-family:var(--font-mono);color:var(--text3);margin-top:8px">
+            <span>Cohort-01</span><span>·</span><span>·</span><span>·</span><span>·</span><span>·</span><span>·</span><span>·</span><span>·</span><span>Cohort-10</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn btn-danger" onclick="showToast('Exporting 38 pre-delinquency accounts','Sending to Collections workflow…','red')">🚨 Push to Collections</button>
+        <button class="btn btn-secondary">📤 Export Heatmap</button>
+        <button class="btn btn-secondary">🏷️ Tag Segment</button>
+      </div>
+    </div>
+
+    <!-- SIDE SIGNALS -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="panel">
+        <div class="panel-title">Stress Signal Types <span class="panel-badge badge-red">Active</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div>
+            <div class="slider-label">
+              <span class="slider-name">Txn Velocity Drop</span>
+              <span class="slider-val">68 events</span>
+            </div>
+            <div class="trend-bar-wrap" style="width:100%;margin-top:6px">
+              <div class="trend-bar" style="width:68%;background:var(--red)"></div>
+            </div>
+          </div>
+          <div>
+            <div class="slider-label">
+              <span class="slider-name">Utility Payment Miss</span>
+              <span class="slider-val">41 events</span>
+            </div>
+            <div class="trend-bar-wrap" style="width:100%;margin-top:6px">
+              <div class="trend-bar" style="width:41%;background:var(--red)"></div>
+            </div>
+          </div>
+          <div>
+            <div class="slider-label">
+              <span class="slider-name">App Login Dropout</span>
+              <span class="slider-val">34 events</span>
+            </div>
+            <div class="trend-bar-wrap" style="width:100%;margin-top:6px">
+              <div class="trend-bar" style="width:34%;background:var(--amber)"></div>
+            </div>
+          </div>
+          <div>
+            <div class="slider-label">
+              <span class="slider-name">Merchant Category Shift</span>
+              <span class="slider-val">29 events</span>
+            </div>
+            <div class="trend-bar-wrap" style="width:100%;margin-top:6px">
+              <div class="trend-bar" style="width:29%;background:var(--amber)"></div>
+            </div>
+          </div>
+          <div>
+            <div class="slider-label">
+              <span class="slider-name">Repayment Date Drift</span>
+              <span class="slider-val">22 events</span>
+            </div>
+            <div class="trend-bar-wrap" style="width:100%;margin-top:6px">
+              <div class="trend-bar" style="width:22%;background:var(--amber)"></div>
+            </div>
+          </div>
+          <div>
+            <div class="slider-label">
+              <span class="slider-name">Behavioral Pattern Break</span>
+              <span class="slider-val">11 events</span>
+            </div>
+            <div class="trend-bar-wrap" style="width:100%;margin-top:6px">
+              <div class="trend-bar" style="width:11%;background:var(--blue)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Predictive Forecast<span class="panel-badge badge-amber">T+30d</span></div>
+        <p style="font-size:11px;color:var(--text2);margin-bottom:12px">Modeled stress event projection based on current trajectory signals</p>
+        <svg viewBox="0 0 240 100" width="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="forecg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,70 C30,68 60,60 90,55 C120,50 150,45 180,35 C200,28 220,22 240,18 L240,100 L0,100 Z" fill="url(#forecg)"/>
+          <path d="M0,70 C30,68 60,60 90,55 C120,50 150,45 180,35 C200,28 220,22 240,18" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <path d="M0,70 C20,69 50,64 70,60" fill="none" stroke="#f59e0b" stroke-width="2"/>
+          <line x1="70" y1="0" x2="70" y2="100" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="3,3"/>
+          <text x="72" y="12" fill="#94a3b8" font-size="8" font-family="DM Mono">Today</text>
+          <text x="0" y="98" fill="#4a5568" font-size="8" font-family="DM Mono">Jan 25</text>
+          <text x="110" y="98" fill="#4a5568" font-size="8" font-family="DM Mono">Feb 25</text>
+          <text x="210" y="98" fill="#f59e0b" font-size="8" font-family="DM Mono">Mar 25</text>
+        </svg>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:8px">
+          <span style="color:var(--text2)">Projected stress events</span>
+          <span style="color:var(--amber);font-family:var(--font-mono);font-weight:600">+38 by Mar 15</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SCREEN 3: ELASTICITY SIMULATOR            -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen" id="screen-elasticity">
+  <div class="screen-title">Elasticity Limit Simulator</div>
+  <div class="screen-sub">Model safe credit capacity expansion with real-time confidence margins</div>
+
+  <div class="grid-2">
+    <!-- INPUTS -->
+    <div class="panel">
+      <div class="panel-title">Simulation Inputs <span class="panel-badge badge-blue">ELS v2</span></div>
+
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button class="filter-btn active">Individual</button>
+        <button class="filter-btn">Segment</button>
+        <button class="filter-btn">Portfolio</button>
+      </div>
+
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Borrower</div>
+      <div style="font-size:13px;font-weight:600;color:var(--cyan);font-family:var(--font-mono);margin-bottom:16px">#BRW-7732 · Agri Segment · MH</div>
+
+      <div class="slider-row">
+        <div class="slider-item">
+          <div class="slider-label">
+            <span class="slider-name">Current Credit Limit</span>
+            <span class="slider-val" id="limit-val">₹2.5L</span>
+          </div>
+          <input type="range" min="1" max="10" value="5" oninput="updateSim(this,'limit-val',v => '₹'+v*0.5+'L')">
+        </div>
+        <div class="slider-item">
+          <div class="slider-label">
+            <span class="slider-name">Confidence Score</span>
+            <span class="slider-val" id="conf-val">88.1</span>
+          </div>
+          <input type="range" min="30" max="100" value="88" oninput="updateSim(this,'conf-val',v => v+'.0')">
+        </div>
+        <div class="slider-item">
+          <div class="slider-label">
+            <span class="slider-name">Income Volatility Index</span>
+            <span class="slider-val" id="vol-val">Low (0.18)</span>
+          </div>
+          <input type="range" min="1" max="10" value="2" oninput="updateSimRaw(this,'vol-val')">
+        </div>
+        <div class="slider-item">
+          <div class="slider-label">
+            <span class="slider-name">Tenure (months)</span>
+            <span class="slider-val" id="tenure-val">24 mo</span>
+          </div>
+          <input type="range" min="6" max="60" value="24" oninput="updateSim(this,'tenure-val',v => v+' mo')">
+        </div>
+        <div class="slider-item">
+          <div class="slider-label">
+            <span class="slider-name">Market Stress Scenario</span>
+            <span class="slider-val" id="market-val">Base</span>
+          </div>
+          <input type="range" min="1" max="3" value="1" oninput="updateScenario(this)">
+        </div>
+      </div>
+
+      <div class="sim-output">
+        <div class="sim-big" id="sim-result">₹3.8L</div>
+        <div class="sim-label">Recommended Max Limit (Confidence Adjusted)</div>
+        <div style="margin-top:12px;display:flex;gap:12px;justify-content:center">
+          <div style="text-align:center">
+            <div style="font-size:20px;font-weight:800;color:var(--green);font-family:var(--font-display)">+52%</div>
+            <div style="font-size:10px;color:var(--text2);font-family:var(--font-mono)">Expansion</div>
+          </div>
+          <div style="width:1px;background:var(--border)"></div>
+          <div style="text-align:center">
+            <div style="font-size:20px;font-weight:800;color:var(--cyan);font-family:var(--font-display)">94.2%</div>
+            <div style="font-size:10px;color:var(--text2);font-family:var(--font-mono)">Conf Margin</div>
+          </div>
+          <div style="width:1px;background:var(--border)"></div>
+          <div style="text-align:center">
+            <div style="font-size:20px;font-weight:800;color:var(--amber);font-family:var(--font-display)">T+6mo</div>
+            <div style="font-size:10px;color:var(--text2);font-family:var(--font-mono)">Review Window</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn-primary" onclick="showToast('Simulation saved','Expansion approved for BRW-7732','green')">✅ Approve Expansion</button>
+        <button class="btn btn-secondary">📤 Export Assumptions</button>
+      </div>
+    </div>
+
+    <!-- CURVE PANEL -->
+    <div class="panel">
+      <div class="panel-title">Elasticity Curve <span class="panel-badge badge-green">Safe Zone</span></div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:16px">Risk-adjusted credit capacity curve with confidence margin of safety</p>
+
+      <div class="curve-wrap">
+        <svg viewBox="0 0 400 200" width="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="safeg" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#10b981" stop-opacity="0.2"/>
+              <stop offset="60%" stop-color="#10b981" stop-opacity="0.1"/>
+              <stop offset="100%" stop-color="#ef4444" stop-opacity="0.15"/>
+            </linearGradient>
+          </defs>
+          <!-- axes -->
+          <line x1="40" y1="170" x2="390" y2="170" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+          <line x1="40" y1="10" x2="40" y2="170" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+          <!-- axis labels -->
+          <text x="200" y="190" text-anchor="middle" fill="#4a5568" font-size="9" font-family="DM Mono">Credit Limit →</text>
+          <text x="12" y="90" fill="#4a5568" font-size="9" font-family="DM Mono" transform="rotate(-90,12,90)">Confidence</text>
+          <!-- safe zone fill -->
+          <rect x="40" y="40" width="200" height="130" fill="#10b981" opacity="0.05" rx="4"/>
+          <!-- danger zone -->
+          <rect x="240" y="40" width="150" height="130" fill="#ef4444" opacity="0.04" rx="4"/>
+          <!-- safe/danger label -->
+          <text x="140" y="58" text-anchor="middle" fill="#10b981" font-size="9" font-family="DM Mono" opacity="0.8">SAFE ZONE</text>
+          <text x="315" y="58" text-anchor="middle" fill="#ef4444" font-size="9" font-family="DM Mono" opacity="0.8">RISK ZONE</text>
+          <!-- confidence curve (decreasing S-curve) -->
+          <path d="M50,50 C80,52 120,58 160,72 C200,86 240,118 280,145 C300,155 330,163 370,168" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round"/>
+          <!-- margin of safety band -->
+          <path d="M50,40 C80,43 120,50 160,65 C200,79 240,112 280,139 C300,149 330,158 370,163" fill="none" stroke="#10b981" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+          <path d="M50,60 C80,62 120,68 160,80 C200,94 240,126 280,152 C300,161 330,168 370,172" fill="none" stroke="#10b981" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+          <!-- current position marker -->
+          <line x1="185" y1="30" x2="185" y2="170" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.7"/>
+          <circle cx="185" cy="76" r="5" fill="#22d3ee" opacity="0.9"/>
+          <text x="190" y="28" fill="#22d3ee" font-size="8" font-family="DM Mono">Current</text>
+          <!-- recommended marker -->
+          <line x1="230" y1="30" x2="230" y2="170" stroke="#10b981" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.7"/>
+          <circle cx="230" cy="113" r="5" fill="#10b981" opacity="0.9"/>
+          <text x="234" y="28" fill="#10b981" font-size="8" font-family="DM Mono">Rec ₹3.8L</text>
+          <!-- x-axis ticks -->
+          <text x="50" y="180" fill="#4a5568" font-size="8" font-family="DM Mono">₹1L</text>
+          <text x="120" y="180" fill="#4a5568" font-size="8" font-family="DM Mono">₹2L</text>
+          <text x="185" y="180" fill="#22d3ee" font-size="8" font-family="DM Mono">₹2.5L</text>
+          <text x="230" y="180" fill="#10b981" font-size="8" font-family="DM Mono">₹3.8L</text>
+          <text x="310" y="180" fill="#4a5568" font-size="8" font-family="DM Mono">₹6L</text>
+        </svg>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="panel-title" style="margin-top:4px">Scenario Comparison</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Scenario</th><th>Max Safe Limit</th><th>Conf Margin</th><th>Revenue Impact</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-green">Base</span></td>
+            <td style="font-family:var(--font-mono)">₹3.8L</td>
+            <td style="font-family:var(--font-mono);color:var(--green)">94.2%</td>
+            <td style="font-family:var(--font-mono);color:var(--green)">+₹12,400</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-amber">Moderate Stress</span></td>
+            <td style="font-family:var(--font-mono)">₹3.1L</td>
+            <td style="font-family:var(--font-mono);color:var(--amber)">81.7%</td>
+            <td style="font-family:var(--font-mono);color:var(--amber)">+₹8,200</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">High Stress</span></td>
+            <td style="font-family:var(--font-mono)">₹2.5L</td>
+            <td style="font-family:var(--font-mono);color:var(--red)">62.3%</td>
+            <td style="font-family:var(--font-mono);color:var(--text3)">No change</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SCREEN 4: AI CONTROL ROOM                 -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen" id="screen-control-room">
+  <div class="screen-title">AI Control Room</div>
+  <div class="screen-sub">Model governance, drift monitoring & bias guardrails · <span style="color:var(--amber);font-family:var(--font-mono)">3 alerts active</span></div>
+
+  <div class="kpi-row">
+    <div class="kpi-tile green">
+      <div class="kpi-label">Models Healthy</div>
+      <div class="kpi-value">8</div>
+      <div class="kpi-delta"><span class="delta-neutral">— All clear</span></div>
+    </div>
+    <div class="kpi-tile amber">
+      <div class="kpi-label">Drift Warning</div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-delta"><span class="delta-down">▲ +1 today</span></div>
+    </div>
+    <div class="kpi-tile red">
+      <div class="kpi-label">Bias Flags</div>
+      <div class="kpi-value">1</div>
+      <div class="kpi-delta"><span class="delta-down">New — Review</span></div>
+    </div>
+    <div class="kpi-tile blue">
+      <div class="kpi-label">Avg Model ROI</div>
+      <div class="kpi-value">2.4x</div>
+      <div class="kpi-delta"><span class="delta-up">▲ +0.2</span></div>
+    </div>
+  </div>
+
+  <div class="grid-32">
+    <div class="panel">
+      <div class="panel-title">Model Inventory & Health Monitor</div>
+
+      <div class="model-health-row">
+        <div class="model-dot dot-red"></div>
+        <div class="model-name">CRED-v2.1 · Credit Confidence Scorer</div>
+        <span class="tag tag-red">DRIFT</span>
+        <div class="model-drift" style="color:var(--red)">PSI 0.31</div>
+        <div class="progress-wrap"><div class="progress-fill" style="width:31%;background:var(--red)"></div></div>
+        <button class="btn btn-danger" style="font-size:11px;padding:3px 8px" onclick="showToast('Retrain queued for CRED-v2.1','ETA 2.4 hours · staging environment','amber')">Retrain</button>
+      </div>
+
+      <div class="model-health-row">
+        <div class="model-dot dot-amber"></div>
+        <div class="model-name">STR-v1.4 · Stress Trajectory Radar</div>
+        <span class="tag tag-amber">WATCH</span>
+        <div class="model-drift" style="color:var(--amber)">PSI 0.18</div>
+        <div class="progress-wrap"><div class="progress-fill" style="width:18%;background:var(--amber)"></div></div>
+        <button class="btn btn-secondary" style="font-size:11px;padding:3px 8px">Review</button>
+      </div>
+
+      <div class="model-health-row">
+        <div class="model-dot dot-green"></div>
+        <div class="model-name">ELS-v3.0 · Elasticity Limit Engine</div>
+        <span class="tag tag-green">HEALTHY</span>
+        <div class="model-drift" style="color:var(--green)">PSI 0.04</div>
+        <div class="progress-wrap"><div class="progress-fill" style="width:4%;background:var(--green)"></div></div>
+        <button class="btn btn-secondary" style="font-size:11px;padding:3px 8px">Details</button>
+      </div>
+
+      <div class="model-health-row">
+        <div class="model-dot dot-green"></div>
+        <div class="model-name">FRD-v1.1 · Fraud Signal Detector</div>
+        <span class="tag tag-green">HEALTHY</span>
+        <div class="model-drift" style="color:var(--green)">PSI 0.07</div>
+        <div class="progress-wrap"><div class="progress-fill" style="width:7%;background:var(--green)"></div></div>
+        <button class="btn btn-secondary" style="font-size:11px;padding:3px 8px">Details</button>
+      </div>
+
+      <div class="model-health-row">
+        <div class="model-dot dot-green"></div>
+        <div class="model-name">PRP-v2.0 · Prepayment Predictor</div>
+        <span class="tag tag-green">HEALTHY</span>
+        <div class="model-drift" style="color:var(--green)">PSI 0.09</div>
+        <div class="progress-wrap"><div class="progress-fill" style="width:9%;background:var(--green)"></div></div>
+        <button class="btn btn-secondary" style="font-size:11px;padding:3px 8px">Details</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="panel-title" style="margin-top:8px">Drift Trend — CRED-v2.1 <span class="panel-badge badge-red">Action Required</span></div>
+
+      <svg viewBox="0 0 500 100" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <!-- threshold line -->
+        <line x1="0" y1="45" x2="500" y2="45" stroke="rgba(245,158,11,0.4)" stroke-width="1" stroke-dasharray="6,4"/>
+        <text x="2" y="42" fill="#f59e0b" font-size="8" font-family="DM Mono">Threshold 0.25</text>
+        <!-- drift line -->
+        <path d="M0,80 C50,78 100,72 150,70 C200,68 250,60 300,52 C350,44 400,38 450,28 C470,24 490,20 500,18" fill="none" stroke="#ef4444" stroke-width="2"/>
+        <circle cx="500" cy="18" r="4" fill="#ef4444"/>
+        <!-- area below -->
+        <path d="M0,80 C50,78 100,72 150,70 C200,68 250,60 300,52 C350,44 400,38 450,28 C470,24 490,20 500,18 L500,100 L0,100 Z" fill="rgba(239,68,68,0.08)"/>
+        <text x="0" y="98" fill="#4a5568" font-size="8" font-family="DM Mono">90d ago</text>
+        <text x="220" y="98" fill="#4a5568" font-size="8" font-family="DM Mono">45d ago</text>
+        <text x="470" y="98" fill="#ef4444" font-size="8" font-family="DM Mono">Now</text>
+      </svg>
+
+      <div class="divider"></div>
+
+      <div class="panel-title">Bias Signals — CRED-v2.1</div>
+      <div style="background:var(--red-dim);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:12px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="font-size:14px">🚩</span>
+          <span style="font-weight:600;font-size:13px">Gender feature contributing disproportionately</span>
+        </div>
+        <div style="font-size:12px;color:var(--text2)">Feature importance delta: <span style="color:var(--red);font-family:var(--font-mono)">+18.3% above baseline</span> · Adverse impact ratio: <span style="color:var(--red);font-family:var(--font-mono)">0.73</span> (threshold: 0.80)</div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn btn-danger" style="font-size:11px" onclick="showToast('Bias remediation queued','Feature will be recalibrated in retrain pipeline','amber')">🔧 Remediate</button>
+          <button class="btn btn-secondary" style="font-size:11px">📋 Export Audit Report</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROI SIDE -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="panel">
+        <div class="panel-title">Model ROI Attribution</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+              <span style="color:var(--text2)">CRED-v2.1</span>
+              <span style="color:var(--text);font-family:var(--font-mono)">₹84L revenue impact</span>
+            </div>
+            <div class="trend-bar-wrap" style="width:100%"><div class="trend-bar" style="width:84%;background:linear-gradient(90deg,var(--blue),var(--cyan))"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+              <span style="color:var(--text2)">STR-v1.4</span>
+              <span style="color:var(--text);font-family:var(--font-mono)">₹61L loss prevention</span>
+            </div>
+            <div class="trend-bar-wrap" style="width:100%"><div class="trend-bar" style="width:61%;background:var(--green)"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+              <span style="color:var(--text2)">ELS-v3.0</span>
+              <span style="color:var(--text);font-family:var(--font-mono)">₹47L expansion revenue</span>
+            </div>
+            <div class="trend-bar-wrap" style="width:100%"><div class="trend-bar" style="width:47%;background:var(--cyan)"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+              <span style="color:var(--text2)">FRD-v1.1</span>
+              <span style="color:var(--text);font-family:var(--font-mono)">₹33L fraud prevented</span>
+            </div>
+            <div class="trend-bar-wrap" style="width:100%"><div class="trend-bar" style="width:33%;background:var(--purple)"></div></div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px">
+          <span style="color:var(--text2)">Total Model-Attributed Value</span>
+          <span style="color:var(--green);font-family:var(--font-display);font-weight:700;font-size:16px">₹2.25Cr</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Guardrails Status</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px">
+            <span>Max daily decision volume</span>
+            <span style="color:var(--green);font-family:var(--font-mono)">✅ 12k / 50k</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px">
+            <span>Adverse action ratio</span>
+            <span style="color:var(--green);font-family:var(--font-mono)">✅ 8.2% / 25%</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px">
+            <span>Model confidence threshold</span>
+            <span style="color:var(--amber);font-family:var(--font-mono)">⚠️ 72% / 70%</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px">
+            <span>Explainability score</span>
+            <span style="color:var(--green);font-family:var(--font-mono)">✅ 91 / 60 min</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px">
+            <span>Human review queue</span>
+            <span style="color:var(--red);font-family:var(--font-mono)">🚨 241 pending</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SCREEN 5: PORTFOLIOS                      -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen" id="screen-portfolios">
+  <div class="screen-title">Portfolio Explorer</div>
+  <div class="screen-sub">Segment & product-level confidence views with cohort comparisons</div>
+
+  <div class="filter-row">
+    <button class="filter-btn active">All Products</button>
+    <button class="filter-btn">MSME</button>
+    <button class="filter-btn">Consumer</button>
+    <button class="filter-btn">Agri</button>
+    <button class="filter-btn">SBL</button>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="filter-btn">vs Last Month</button>
+      <button class="filter-btn">vs Peers</button>
+    </div>
+  </div>
+
+  <div class="cohort-grid">
+    <div class="cohort-card" onclick="showToast('MSME Portfolio opened','Drilling into segment detail…','blue')">
+      <div class="cohort-name">MSME Portfolio</div>
+      <div class="cohort-size">4,218 borrowers · ₹820 Cr AUM</div>
+      <div class="cohort-score" style="color:var(--amber)">68.3</div>
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+        <span class="tag tag-amber">⚠️ 23 stressed</span>
+        <span class="tag tag-blue">↗ Trending up</span>
+      </div>
+    </div>
+    <div class="cohort-card">
+      <div class="cohort-name">Consumer Lending</div>
+      <div class="cohort-size">9,841 borrowers · ₹1,140 Cr AUM</div>
+      <div class="cohort-score" style="color:var(--green)">82.1</div>
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+        <span class="tag tag-green">✅ 8 stressed</span>
+        <span class="tag tag-blue">↗ Stable</span>
+      </div>
+    </div>
+    <div class="cohort-card">
+      <div class="cohort-name">Agri Finance</div>
+      <div class="cohort-size">2,107 borrowers · ₹380 Cr AUM</div>
+      <div class="cohort-score" style="color:var(--green)">89.4</div>
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+        <span class="tag tag-green">✅ 2 stressed</span>
+        <span class="tag tag-green">↗ Improving</span>
+      </div>
+    </div>
+    <div class="cohort-card">
+      <div class="cohort-name">Small Business Loans</div>
+      <div class="cohort-size">1,982 borrowers · ₹340 Cr AUM</div>
+      <div class="cohort-score" style="color:var(--red)">54.7</div>
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+        <span class="tag tag-red">🚨 41 stressed</span>
+        <span class="tag tag-red">↘ Deteriorating</span>
+      </div>
+    </div>
+    <div class="cohort-card">
+      <div class="cohort-name">MH-West Cluster</div>
+      <div class="cohort-size">3,441 borrowers · ₹490 Cr AUM</div>
+      <div class="cohort-score" style="color:var(--green)">83.4</div>
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+        <span class="tag tag-green">✅ 5 stressed</span>
+        <span class="tag tag-blue">↗ Improving</span>
+      </div>
+    </div>
+    <div class="cohort-card">
+      <div class="cohort-name">DL-NCR Cluster</div>
+      <div class="cohort-size">2,834 borrowers · ₹420 Cr AUM</div>
+      <div class="cohort-score" style="color:var(--amber)">71.2</div>
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+        <span class="tag tag-amber">⚠️ 18 stressed</span>
+        <span class="tag tag-amber">↘ Watch</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2 mt-16">
+    <div class="panel">
+      <div class="panel-title">Confidence Distribution</div>
+      <svg viewBox="0 0 400 140" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <!-- histogram bars -->
+        <rect x="20" y="110" width="35" height="20" fill="#ef4444" opacity="0.8" rx="3"/>
+        <rect x="65" y="80" width="35" height="50" fill="#ef4444" opacity="0.6" rx="3"/>
+        <rect x="110" y="55" width="35" height="75" fill="#f59e0b" opacity="0.7" rx="3"/>
+        <rect x="155" y="30" width="35" height="100" fill="#f59e0b" opacity="0.8" rx="3"/>
+        <rect x="200" y="20" width="35" height="110" fill="#10b981" opacity="0.7" rx="3"/>
+        <rect x="245" y="35" width="35" height="95" fill="#10b981" opacity="0.8" rx="3"/>
+        <rect x="290" y="60" width="35" height="70" fill="#10b981" opacity="0.6" rx="3"/>
+        <rect x="335" y="90" width="35" height="40" fill="#22d3ee" opacity="0.7" rx="3"/>
+        <!-- x labels -->
+        <text x="25" y="138" fill="#4a5568" font-size="9" font-family="DM Mono">0-20</text>
+        <text x="68" y="138" fill="#4a5568" font-size="9" font-family="DM Mono">21-35</text>
+        <text x="112" y="138" fill="#4a5568" font-size="9" font-family="DM Mono">36-50</text>
+        <text x="157" y="138" fill="#4a5568" font-size="9" font-family="DM Mono">51-65</text>
+        <text x="202" y="138" fill="#94a3b8" font-size="9" font-family="DM Mono">66-75</text>
+        <text x="248" y="138" fill="#94a3b8" font-size="9" font-family="DM Mono">76-85</text>
+        <text x="292" y="138" fill="#94a3b8" font-size="9" font-family="DM Mono">86-95</text>
+        <text x="338" y="138" fill="#94a3b8" font-size="9" font-family="DM Mono">96+</text>
+      </svg>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Month-on-Month Confidence Delta</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Segment</th><th>Jan Avg</th><th>Feb Avg</th><th>Delta</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>MSME</td><td style="font-family:var(--font-mono)">65.8</td><td style="font-family:var(--font-mono)">68.3</td><td><span class="delta-up">▲ +2.5</span></td></tr>
+          <tr><td>Consumer</td><td style="font-family:var(--font-mono)">81.4</td><td style="font-family:var(--font-mono)">82.1</td><td><span class="delta-up">▲ +0.7</span></td></tr>
+          <tr><td>Agri</td><td style="font-family:var(--font-mono)">86.2</td><td style="font-family:var(--font-mono)">89.4</td><td><span class="delta-up">▲ +3.2</span></td></tr>
+          <tr><td>SBL</td><td style="font-family:var(--font-mono)">59.1</td><td style="font-family:var(--font-mono)">54.7</td><td><span class="delta-down">▼ -4.4</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SCREEN 6: BENCHMARKS                      -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen" id="screen-benchmarks">
+  <div class="screen-title">Benchmark Center</div>
+  <div class="screen-sub">Your performance vs industry norms and peer lenders · Anonymized peer data</div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-title">Confidence Score Benchmarks</div>
+      <div style="margin-bottom:12px;font-size:12px;color:var(--text2)">Your portfolio vs industry average vs top quartile</div>
+
+      <div class="bench-item">
+        <span class="bench-name">Consumer Lending</span>
+        <div style="flex:1;position:relative">
+          <div class="bench-bar-track">
+            <div class="bench-bar" style="width:82%;background:linear-gradient(90deg,var(--blue),var(--cyan))"></div>
+          </div>
+          <div style="position:absolute;top:50%;left:68%;transform:translate(-50%,-50%)">
+            <div style="width:2px;height:14px;background:var(--amber);position:absolute;top:-4px;left:0"></div>
+          </div>
+        </div>
+        <span class="bench-val" style="color:var(--cyan)">82.1</span>
+      </div>
+
+      <div class="bench-item">
+        <span class="bench-name">MSME Lending</span>
+        <div class="bench-bar-track">
+          <div class="bench-bar" style="width:68%;background:var(--amber)"></div>
+        </div>
+        <span class="bench-val" style="color:var(--amber)">68.3</span>
+      </div>
+
+      <div class="bench-item">
+        <span class="bench-name">Agri Finance</span>
+        <div class="bench-bar-track">
+          <div class="bench-bar" style="width:89%;background:var(--green)"></div>
+        </div>
+        <span class="bench-val" style="color:var(--green)">89.4</span>
+      </div>
+
+      <div class="bench-item">
+        <span class="bench-name">Small Business</span>
+        <div class="bench-bar-track">
+          <div class="bench-bar" style="width:55%;background:var(--red)"></div>
+        </div>
+        <span class="bench-val" style="color:var(--red)">54.7</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <div style="display:flex;gap:16px;font-size:11px;font-family:var(--font-mono)">
+        <span><span style="color:var(--cyan)">■</span> You</span>
+        <span><span style="color:var(--amber)">|</span> Industry Avg (72.1)</span>
+        <span><span style="color:var(--green)">—</span> Top Quartile</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Stress Event Frequency vs Peers</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Events per 1,000 borrowers per month</div>
+
+      <table class="data-table">
+        <thead>
+          <tr><th>Metric</th><th>You</th><th>Peer Median</th><th>Best Peer</th><th>Rank</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-size:12px">Pre-delinquency rate</td>
+            <td style="font-family:var(--font-mono);color:var(--green)">2.1%</td>
+            <td style="font-family:var(--font-mono);color:var(--text2)">3.4%</td>
+            <td style="font-family:var(--font-mono);color:var(--cyan)">1.2%</td>
+            <td><span class="tag tag-green">Top 20%</span></td>
+          </tr>
+          <tr>
+            <td style="font-size:12px">NPA Rate</td>
+            <td style="font-family:var(--font-mono);color:var(--green)">1.84%</td>
+            <td style="font-family:var(--font-mono);color:var(--text2)">2.8%</td>
+            <td style="font-family:var(--font-mono);color:var(--cyan)">0.9%</td>
+            <td><span class="tag tag-green">Top 25%</span></td>
+          </tr>
+          <tr>
+            <td style="font-size:12px">Early warning accuracy</td>
+            <td style="font-family:var(--font-mono);color:var(--green)">81%</td>
+            <td style="font-family:var(--font-mono);color:var(--text2)">67%</td>
+            <td style="font-family:var(--font-mono);color:var(--cyan)">91%</td>
+            <td><span class="tag tag-blue">Top 30%</span></td>
+          </tr>
+          <tr>
+            <td style="font-size:12px">Avg response to signal</td>
+            <td style="font-family:var(--font-mono);color:var(--amber)">4.2 days</td>
+            <td style="font-family:var(--font-mono);color:var(--text2)">8.1 days</td>
+            <td style="font-family:var(--font-mono);color:var(--cyan)">1.8 days</td>
+            <td><span class="tag tag-green">Top 35%</span></td>
+          </tr>
+          <tr>
+            <td style="font-size:12px">Credit utilization rate</td>
+            <td style="font-family:var(--font-mono);color:var(--amber)">72%</td>
+            <td style="font-family:var(--font-mono);color:var(--text2)">68%</td>
+            <td style="font-family:var(--font-mono);color:var(--cyan)">84%</td>
+            <td><span class="tag tag-amber">Median</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel mt-16">
+    <div class="panel-title">Elasticity Headroom — Industry Comparison <span class="panel-badge badge-green">You outperform</span></div>
+    <svg viewBox="0 0 800 120" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <!-- your bar -->
+      <rect x="0" y="10" width="540" height="28" fill="rgba(34,211,238,0.15)" rx="4"/>
+      <rect x="0" y="10" width="540" height="28" fill="none" stroke="rgba(34,211,238,0.3)" rx="4" stroke-width="1"/>
+      <text x="548" y="29" fill="#22d3ee" font-size="12" font-family="DM Mono" font-weight="600">₹47Cr available headroom</text>
+      <text x="-2" y="7" fill="#94a3b8" font-size="9" font-family="DM Mono">YOU</text>
+      <!-- peer a -->
+      <rect x="0" y="50" width="390" height="20" fill="rgba(148,163,184,0.1)" rx="4"/>
+      <text x="398" y="65" fill="#94a3b8" font-size="11" font-family="DM Mono">₹33Cr · Peer A</text>
+      <text x="-2" y="47" fill="#4a5568" font-size="9" font-family="DM Mono">PEER A</text>
+      <!-- peer b -->
+      <rect x="0" y="83" width="280" height="20" fill="rgba(148,163,184,0.08)" rx="4"/>
+      <text x="288" y="98" fill="#94a3b8" font-size="11" font-family="DM Mono">₹24Cr · Peer B</text>
+      <text x="-2" y="80" fill="#4a5568" font-size="9" font-family="DM Mono">PEER B</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SCREEN 7: REPORTS                         -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen" id="screen-reports">
+  <div class="screen-title">Reports & Alerts</div>
+  <div class="screen-sub">Scheduled digests, exports, and severity-tiered notification management</div>
+
+  <div class="grid-32">
+    <div>
+      <div class="panel-title" style="font-size:16px;margin-bottom:16px">Saved Reports</div>
+
+      <div class="report-card">
+        <div class="report-icon">📊</div>
+        <div class="report-info">
+          <div class="report-name">Weekly Portfolio Confidence Digest</div>
+          <div class="report-meta">Every Monday 9:00AM · PDF + Email · 4 recipients</div>
+        </div>
+        <div class="report-actions">
+          <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px" onclick="showToast('Report queued','Generating Weekly Digest…','blue')">▶ Run Now</button>
+          <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px">⚙️</button>
+        </div>
+      </div>
+
+      <div class="report-card">
+        <div class="report-icon">🚨</div>
+        <div class="report-info">
+          <div class="report-name">Stress Flag Daily Alert</div>
+          <div class="report-meta">Every day 8:00AM · Push + Email · Risk Team</div>
+        </div>
+        <div class="report-actions">
+          <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px" onclick="showToast('Alert sent','Daily Stress Alert dispatched to Risk Team','red')">▶ Run Now</button>
+          <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px">⚙️</button>
+        </div>
+      </div>
+
+      <div class="report-card">
+        <div class="report-icon">🤖</div>
+        <div class="report-info">
+          <div class="report-name">Model Governance Monthly Report</div>
+          <div class="report-meta">1st of month · PDF · Compliance + CTO</div>
+        </div>
+        <div class="report-actions">
+          <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px">▶ Run Now</button>
+          <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px">⚙️</button>
+        </div>
+      </div>
+
+      <div class="report-card">
+        <div class="report-icon">📈</div>
+        <div class="report-info">
+          <div class="report-name">CFO Portfolio Economics View</div>
+          <div class="report-meta">Every Friday 6:00PM · CSV + Slides</div>
+        </div>
+        <div class="report-actions">
+          <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px">▶ Run Now</button>
+          <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px">⚙️</button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-16">＋ Create Report</button>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="panel">
+        <div class="panel-title">Alert Severity Tiers</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:var(--red-dim);border-radius:6px">
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--red)">🔴 Critical</div>
+              <div style="font-size:10px;color:var(--text2);font-family:var(--font-mono)">Immediate action · SMS + Call</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:var(--amber-dim);border-radius:6px">
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--amber)">🟡 High</div>
+              <div style="font-size:10px;color:var(--text2);font-family:var(--font-mono)">Review within 4h · Push + Email</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:var(--blue-glow);border-radius:6px">
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--blue)">🔵 Medium</div>
+              <div style="font-size:10px;color:var(--text2);font-family:var(--font-mono)">Daily digest · Email only</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px">
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--text2)">⚪ Low</div>
+              <div style="font-size:10px;color:var(--text2);font-family:var(--font-mono)">Weekly summary · Dashboard only</div>
+            </div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Recent Exports</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:12px">
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:var(--text2)">stress_radar_export_240225.csv</span>
+            <span style="color:var(--blue);cursor:pointer;font-family:var(--font-mono)">↓ 2.1MB</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:var(--text2)">portfolio_confidence_jan26.pdf</span>
+            <span style="color:var(--blue);cursor:pointer;font-family:var(--font-mono)">↓ 4.8MB</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:var(--text2)">model_drift_report_cred21.pdf</span>
+            <span style="color:var(--blue);cursor:pointer;font-family:var(--font-mono)">↓ 1.2MB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SCREEN 8: SETTINGS                        -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen" id="screen-settings">
+  <div class="screen-title">Settings & Integrations</div>
+  <div class="screen-sub">System configuration, data connectors, and access management</div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <div class="settings-section-title">Data Connectors</div>
+      <div class="conn-grid">
+        <div class="conn-card">
+          <div class="conn-icon">☁️</div>
+          <div class="conn-name">AWS S3</div>
+          <div class="conn-desc">Data lake sync</div>
+          <div class="conn-status" style="color:var(--green)">● Connected</div>
+        </div>
+        <div class="conn-card">
+          <div class="conn-icon">⚡</div>
+          <div class="conn-name">Databricks</div>
+          <div class="conn-desc">ML pipelines</div>
+          <div class="conn-status" style="color:var(--green)">● Connected</div>
+        </div>
+        <div class="conn-card">
+          <div class="conn-icon">☁️</div>
+          <div class="conn-name">Salesforce</div>
+          <div class="conn-desc">CRM sync</div>
+          <div class="conn-status" style="color:var(--amber)">● Partial</div>
+        </div>
+        <div class="conn-card" onclick="showToast('Oracle connector','Configuration wizard opening…','blue')">
+          <div class="conn-icon">🏛️</div>
+          <div class="conn-name">Oracle ERP</div>
+          <div class="conn-desc">Financial data</div>
+          <div class="conn-status" style="color:var(--text3)">○ Not connected</div>
+        </div>
+        <div class="conn-card">
+          <div class="conn-icon">📊</div>
+          <div class="conn-name">CIBIL / Bureau</div>
+          <div class="conn-desc">Credit bureau</div>
+          <div class="conn-status" style="color:var(--green)">● Connected</div>
+        </div>
+        <div class="conn-card">
+          <div class="conn-icon">🏦</div>
+          <div class="conn-name">Account Aggregator</div>
+          <div class="conn-desc">Bank statements</div>
+          <div class="conn-status" style="color:var(--green)">● Connected</div>
+        </div>
+      </div>
+
+      <div class="settings-section-title" style="margin-top:24px">API Keys</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Production API Key</div>
+          <div class="settings-desc" style="font-family:var(--font-mono)">cos_prod_●●●●●●●●●●●●abc4</div>
+        </div>
+        <button class="btn btn-secondary" style="font-size:11px">Regenerate</button>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Sandbox API Key</div>
+          <div class="settings-desc" style="font-family:var(--font-mono)">cos_sand_●●●●●●●●●●●●def8</div>
+        </div>
+        <button class="btn btn-secondary" style="font-size:11px">Regenerate</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="settings-section-title">Model Governance Config</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Drift Alert Threshold (PSI)</div>
+          <div class="settings-desc">Alert when PSI exceeds this value</div>
+        </div>
+        <input type="number" value="0.25" style="width:70px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--cyan);font-family:var(--font-mono);font-size:13px;outline:none;text-align:center">
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Auto-retrain on drift</div>
+          <div class="settings-desc">Queue retrain when threshold breached</div>
+        </div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Bias monitoring</div>
+          <div class="settings-desc">Check protected attribute disparity</div>
+        </div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Explainability reporting</div>
+          <div class="settings-desc">SHAP values on all decisions</div>
+        </div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+
+      <div class="settings-section-title">Data Governance</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Data residency</div>
+          <div class="settings-desc">All data stored in India (ap-south-1)</div>
+        </div>
+        <span class="tag tag-green">RBI Compliant</span>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">PII anonymization</div>
+          <div class="settings-desc">Mask PII in logs and exports</div>
+        </div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Audit log retention</div>
+          <div class="settings-desc">Full decision audit trail</div>
+        </div>
+        <input type="number" value="7" style="width:55px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--cyan);font-family:var(--font-mono);font-size:13px;outline:none;text-align:center">
+        <span style="font-size:12px;color:var(--text2);margin-left:8px">years</span>
+      </div>
+
+      <div class="settings-section-title">Roles & Access</div>
+      <table class="data-table">
+        <thead><tr><th>User</th><th>Role</th><th>Last Active</th><th></th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Ashneer K.</td>
+            <td><span class="tag tag-red">Admin</span></td>
+            <td style="font-family:var(--font-mono);font-size:11px">Now</td>
+            <td><button class="btn btn-secondary" style="font-size:10px;padding:2px 8px">Edit</button></td>
+          </tr>
+          <tr>
+            <td>Risk Team</td>
+            <td><span class="tag tag-amber">Risk Analyst</span></td>
+            <td style="font-family:var(--font-mono);font-size:11px">1h ago</td>
+            <td><button class="btn btn-secondary" style="font-size:10px;padding:2px 8px">Edit</button></td>
+          </tr>
+          <tr>
+            <td>Collections</td>
+            <td><span class="tag tag-blue">Ops User</span></td>
+            <td style="font-family:var(--font-mono);font-size:11px">3h ago</td>
+            <td><button class="btn btn-secondary" style="font-size:10px;padding:2px 8px">Edit</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- TOAST CONTAINER -->
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+  // Navigation
+  function nav(screen, el) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+    document.getElementById('screen-' + screen).classList.add('active');
+
+    if (el) {
+      el.classList.add('active');
+    } else {
+      // find matching nav item
+      const items = document.querySelectorAll('.nav-item');
+      items.forEach(item => {
+        if (item.getAttribute('onclick') && item.getAttribute('onclick').includes("'" + screen + "'")) {
+          item.classList.add('active');
+        }
+      });
+    }
+  }
+
+  // Slider helpers
+  function updateSim(el, targetId, formatter) {
+    document.getElementById(targetId).textContent = formatter(el.value);
+    recalcSim();
+  }
+
+  function updateSimRaw(el, targetId) {
+    const labels = ['','Very Low (0.08)','Low (0.18)','Moderate (0.38)','High (0.61)','Very High (0.84)','Extreme (0.97)','','','',''];
+    document.getElementById(targetId).textContent = labels[el.value] || el.value;
+    recalcSim();
+  }
+
+  function updateScenario(el) {
+    const labels = ['','Base','Moderate Stress','High Stress'];
+    document.getElementById('market-val').textContent = labels[el.value] || el.value;
+    recalcSim();
+  }
+
+  function recalcSim() {
+    // Simple fake recalculation
+    const results = ['₹3.2L','₹3.8L','₹4.1L','₹2.9L','₹3.5L'];
+    const r = results[Math.floor(Math.random() * results.length)];
+    document.getElementById('sim-result').textContent = r;
+  }
+
+  // Toast system
+  let toastCount = 0;
+  function showToast(title, body, type) {
+    const stack = document.getElementById('toastStack');
+    const toast = document.createElement('div');
+    toast.className = 'toast t-' + (type || 'blue');
+    toast.innerHTML = '<div class="toast-title">' + title + '</div><div class="toast-body">' + body + '</div>';
+    stack.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.animation = 'slideIn 0.3s ease reverse';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  // Auto-fire a toast on load
+  setTimeout(() => showToast('🚨 New Stress Flag','BRW-9928 just crossed pre-delinquency threshold','red'), 1500);
+  setTimeout(() => showToast('📊 Portfolio Update','MH-West confidence improved to 83.4','green'), 4000);
+
+  // Filter button behavior
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const siblings = this.parentElement.querySelectorAll('.filter-btn');
+      siblings.forEach(s => s.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Seg tab behavior
+  document.querySelectorAll('.seg-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      const siblings = this.parentElement.querySelectorAll('.seg-tab');
+      siblings.forEach(s => s.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
