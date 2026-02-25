@@ -1,0 +1,3055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CreditOS — Continuous Risk Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════
+   APPLE-GRADE DESIGN SYSTEM
+══════════════════════════════════════ */
+:root {
+  /* Apple Dark Palette */
+  --bg:          #000000;
+  --bg1:         #0a0a0f;
+  --bg2:         #111118;
+  --bg3:         #18181f;
+  --surface:     rgba(255,255,255,0.045);
+  --surface2:    rgba(255,255,255,0.07);
+  --glass:       rgba(20,20,30,0.85);
+  --border:      rgba(255,255,255,0.08);
+  --border2:     rgba(255,255,255,0.14);
+  --border3:     rgba(255,255,255,0.22);
+
+  /* Apple System Colours */
+  --blue:        #0A84FF;
+  --blue-dim:    rgba(10,132,255,0.12);
+  --blue-mid:    rgba(10,132,255,0.2);
+  --cyan:        #64D2FF;
+  --green:       #30D158;
+  --green-dim:   rgba(48,209,88,0.1);
+  --green-mid:   rgba(48,209,88,0.18);
+  --amber:       #FF9F0A;
+  --amber-dim:   rgba(255,159,10,0.1);
+  --amber-mid:   rgba(255,159,10,0.18);
+  --red:         #FF453A;
+  --red-dim:     rgba(255,69,58,0.1);
+  --red-mid:     rgba(255,69,58,0.18);
+  --purple:      #BF5AF2;
+  --purple-dim:  rgba(191,90,242,0.1);
+  --indigo:      #5E5CE6;
+
+  /* Stress State Colours */
+  --healthy:     #30D158;
+  --tight:       #FF9F0A;
+  --strained:    #FF6B35;
+  --distressed:  #FF453A;
+
+  /* Typography */
+  --text:        #FFFFFF;
+  --text2:       rgba(255,255,255,0.6);
+  --text3:       rgba(255,255,255,0.3);
+  --text4:       rgba(255,255,255,0.15);
+
+  --font: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'Geist Mono', 'SF Mono', monospace;
+
+  /* Radius */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NOISE TEXTURE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999;
+  opacity: 0.4;
+}
+
+/* ══════════════════════════════════════
+   TOP NAV — Apple macOS menu bar style
+══════════════════════════════════════ */
+.topnav {
+  position: fixed; top:0; left:0; right:0; z-index:1000;
+  height: 52px;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 20px;
+  gap: 0;
+}
+
+.logo {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  margin-right: 24px;
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.logo-icon {
+  width: 26px; height: 26px;
+  background: linear-gradient(135deg, var(--blue), var(--indigo));
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+
+.nav-items {
+  display: flex; gap: 1px;
+  flex: 1;
+}
+
+.nav-item {
+  padding: 5px 13px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  letter-spacing: -0.1px;
+}
+
+.nav-item:hover { color: var(--text); background: var(--surface); }
+.nav-item.active { color: var(--text); background: var(--surface2); }
+
+.nav-right {
+  display: flex; align-items: center; gap: 10px;
+  margin-left: auto; flex-shrink: 0;
+}
+
+.search-wrap {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute; left: 10px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text3);
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.search-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 6px 12px 6px 30px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: var(--font);
+  width: 200px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.search-bar::placeholder { color: var(--text3); }
+.search-bar:focus { border-color: var(--blue); background: var(--surface2); width: 240px; }
+
+.nav-badge {
+  background: var(--red);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  position: absolute; top: -3px; right: -3px;
+}
+
+.avatar-wrap { position: relative; }
+
+.avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--bg);
+  position: absolute; bottom: 0; right: 0;
+}
+
+/* ── ALERT TICKER ── */
+.alert-ticker {
+  position: fixed; top: 52px; left:0; right:0; z-index:999;
+  height: 28px;
+  background: linear-gradient(90deg, rgba(255,69,58,0.06) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 70%, rgba(255,159,10,0.05) 100%);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex; align-items: center;
+  overflow: hidden;
+}
+
+.ticker-label {
+  font-size: 9px;
+  font-family: var(--mono);
+  color: var(--red);
+  font-weight: 600;
+  padding: 0 14px;
+  flex-shrink: 0;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-right: 1px solid var(--border);
+  height: 100%;
+  display: flex; align-items: center;
+  background: rgba(255,69,58,0.06);
+}
+
+.ticker-inner { overflow: hidden; flex: 1; height: 100%; display: flex; align-items: center; }
+
+.ticker-scroll {
+  display: flex; gap: 48px;
+  animation: ticker 35s linear infinite;
+  white-space: nowrap;
+}
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--text3);
+  display: flex; align-items: center; gap: 8px;
+}
+
+.ticker-sep { color: var(--border3); }
+.t-red { color: var(--red); }
+.t-amber { color: var(--amber); }
+.t-green { color: var(--green); }
+.t-blue { color: var(--cyan); }
+
+/* ══════════════════════════════════════
+   MAIN LAYOUT
+══════════════════════════════════════ */
+.main {
+  padding-top: 80px;
+  min-height: 100vh;
+}
+
+.screen { display: none; padding: 28px 32px 48px; }
+.screen.active { display: block; animation: screenIn 0.3s cubic-bezier(0.22,1,0.36,1); }
+
+@keyframes screenIn {
+  from { opacity:0; transform: translateY(10px); }
+  to { opacity:1; transform: translateY(0); }
+}
+
+/* ── PAGE HEADER ── */
+.page-header {
+  margin-bottom: 28px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.8px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.page-sub {
+  font-size: 13px;
+  color: var(--text2);
+  font-weight: 400;
+}
+
+.page-sub .live-time {
+  color: var(--cyan);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+/* ══════════════════════════════════════
+   GRID SYSTEM
+══════════════════════════════════════ */
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+.g4 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:16px; }
+.g32 { display:grid; grid-template-columns:2fr 1fr; gap:16px; }
+.g23 { display:grid; grid-template-columns:1fr 2fr; gap:16px; }
+.g31 { display:grid; grid-template-columns:3fr 1fr; gap:16px; }
+.mt16 { margin-top:16px; }
+.mt24 { margin-top:24px; }
+
+/* ══════════════════════════════════════
+   CARD / PANEL
+══════════════════════════════════════ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.card:hover { border-color: var(--border2); }
+
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.2px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.card-title-left { display: flex; align-items: center; gap: 8px; }
+
+.card-icon {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════
+   KPI TILES
+══════════════════════════════════════ */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.kpi-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.22,1,0.36,1);
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-tile::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.kpi-tile:hover {
+  transform: translateY(-2px);
+  border-color: var(--border2);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.kpi-accent {
+  position: absolute; top:0; left:0; right:0; height: 1px;
+}
+
+.kpi-tile.k-blue .kpi-accent { background: linear-gradient(90deg, transparent, var(--blue), transparent); }
+.kpi-tile.k-green .kpi-accent { background: linear-gradient(90deg, transparent, var(--green), transparent); }
+.kpi-tile.k-amber .kpi-accent { background: linear-gradient(90deg, transparent, var(--amber), transparent); }
+.kpi-tile.k-red .kpi-accent { background: linear-gradient(90deg, transparent, var(--red), transparent); }
+
+.kpi-label {
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+.kpi-value {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.kpi-tile.k-blue .kpi-value { color: var(--cyan); }
+.kpi-tile.k-green .kpi-value { color: var(--green); }
+.kpi-tile.k-amber .kpi-value { color: var(--amber); }
+.kpi-tile.k-red .kpi-value { color: var(--red); }
+
+.kpi-delta {
+  font-size: 11px;
+  font-family: var(--mono);
+  display: flex; align-items: center; gap: 6px;
+}
+
+.d-up { color: var(--green); }
+.d-down { color: var(--red); }
+.d-flat { color: var(--text3); }
+.d-label { color: var(--text3); }
+
+/* ══════════════════════════════════════
+   STRESS STATE SYSTEM (4-state)
+══════════════════════════════════════ */
+.state-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-family: var(--mono);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.state-healthy  { background: var(--green-dim);  color: var(--green); }
+.state-tight    { background: var(--amber-dim);  color: var(--amber); }
+.state-strained { background: rgba(255,107,53,0.1); color: #FF6B35; }
+.state-distressed { background: var(--red-dim);  color: var(--red); }
+
+.state-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+}
+.state-healthy .state-dot  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.state-tight .state-dot    { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+.state-strained .state-dot { background: #FF6B35; box-shadow: 0 0 6px #FF6B35; }
+.state-distressed .state-dot { background: var(--red); box-shadow: 0 0 6px var(--red); animation: blink 1.2s ease infinite; }
+
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.2; } }
+
+/* ══════════════════════════════════════
+   DATA TABLE
+══════════════════════════════════════ */
+.table-wrap { overflow-x: auto; }
+
+table.dt {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+table.dt th {
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+table.dt td {
+  padding: 11px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text);
+  vertical-align: middle;
+}
+
+table.dt tr:last-child td { border-bottom: none; }
+
+table.dt tbody tr {
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+table.dt tbody tr:hover td { background: var(--surface); }
+
+.id-code { font-family: var(--mono); color: var(--cyan); font-size: 12px; }
+
+/* ══════════════════════════════════════
+   CONFIDENCE BAND / SCORE
+══════════════════════════════════════ */
+.conf-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+
+.conf-high { background: var(--green-dim); color: var(--green); }
+.conf-med  { background: var(--amber-dim); color: var(--amber); }
+.conf-low  { background: var(--red-dim);   color: var(--red); }
+
+.vel-score {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+}
+.vel-up   { color: var(--red); }
+.vel-flat { color: var(--text3); }
+.vel-down { color: var(--green); }
+
+/* ══════════════════════════════════════
+   MICRO SPARKLINE
+══════════════════════════════════════ */
+.spark { display: block; }
+
+/* ══════════════════════════════════════
+   TAGS
+══════════════════════════════════════ */
+.tag {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-family: var(--mono);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.tag-blue   { background: var(--blue-dim);   color: var(--blue); }
+.tag-green  { background: var(--green-dim);  color: var(--green); }
+.tag-amber  { background: var(--amber-dim);  color: var(--amber); }
+.tag-red    { background: var(--red-dim);    color: var(--red); }
+.tag-purple { background: var(--purple-dim); color: var(--purple); }
+.tag-grey   { background: var(--surface2);   color: var(--text2); }
+
+/* ══════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════ */
+.btn {
+  padding: 7px 15px;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  font-family: var(--font);
+  display: inline-flex; align-items: center; gap: 5px;
+  letter-spacing: -0.1px;
+}
+
+.btn-primary { background: var(--blue); color: white; }
+.btn-primary:hover { background: #0077ED; box-shadow: 0 4px 20px rgba(10,132,255,0.35); }
+
+.btn-secondary {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--border2); background: var(--surface); }
+
+.btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,69,58,0.2); }
+.btn-danger:hover { background: var(--red-mid); }
+
+.btn-success { background: var(--green-dim); color: var(--green); border: 1px solid rgba(48,209,88,0.2); }
+.btn-success:hover { background: var(--green-mid); }
+
+.btn-ghost { background: transparent; color: var(--text2); }
+.btn-ghost:hover { color: var(--text); background: var(--surface); }
+
+.btn-sm { padding: 4px 10px; font-size: 11px; }
+
+/* ══════════════════════════════════════
+   FILTER ROW
+══════════════════════════════════════ */
+.filter-row {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 16px; flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--font);
+}
+
+.filter-btn:hover { border-color: var(--border2); color: var(--text); }
+.filter-btn.active { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+
+/* ══════════════════════════════════════
+   SEG TABS
+══════════════════════════════════════ */
+.seg-tabs {
+  display: flex; gap: 2px;
+  padding: 3px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  width: fit-content;
+  margin-bottom: 16px;
+}
+
+.seg-tab {
+  padding: 5px 14px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: -0.1px;
+}
+
+.seg-tab.active { background: var(--bg3); color: var(--text); }
+.seg-tab:hover:not(.active) { color: var(--text); }
+
+/* ══════════════════════════════════════
+   SIGNAL FEED
+══════════════════════════════════════ */
+.signal-feed { display: flex; flex-direction: column; gap: 6px; }
+
+.signal-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 11px 14px;
+  background: var(--surface);
+  border-radius: var(--r-sm);
+  border-left: 2px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.signal-item:hover { border-left-color: var(--blue); background: var(--surface2); }
+.signal-item.sig-red    { border-left-color: var(--red); }
+.signal-item.sig-amber  { border-left-color: var(--amber); }
+.signal-item.sig-green  { border-left-color: var(--green); }
+.signal-item.sig-blue   { border-left-color: var(--blue); }
+
+.signal-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-top: 4px; flex-shrink: 0;
+}
+
+.signal-content { flex: 1; }
+.signal-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.signal-meta { font-size: 11px; color: var(--text2); font-family: var(--mono); }
+.signal-time { font-size: 10px; color: var(--text3); font-family: var(--mono); flex-shrink: 0; }
+
+/* ══════════════════════════════════════
+   MARKOV TRANSITION MATRIX
+══════════════════════════════════════ */
+.matrix-wrap {
+  overflow: auto;
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 4px;
+  font-size: 12px;
+  font-family: var(--mono);
+}
+
+.matrix-table th {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  padding: 6px 10px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.matrix-table td {
+  padding: 10px 14px;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 13px;
+  transition: transform 0.2s;
+  cursor: default;
+}
+
+.matrix-table td:hover { transform: scale(1.05); z-index:2; position:relative; }
+
+.mc-diag     { background: rgba(10,132,255,0.15);  color: var(--blue); }
+.mc-h-t      { background: rgba(255,159,10,0.1);   color: var(--amber); }
+.mc-h-s      { background: rgba(255,107,53,0.07);  color: #FF6B35; opacity:0.7; }
+.mc-h-d      { background: rgba(255,69,58,0.05);   color: var(--red); opacity:0.5; }
+.mc-t-h      { background: rgba(48,209,88,0.1);    color: var(--green); }
+.mc-t-s      { background: rgba(255,159,10,0.12);  color: var(--amber); }
+.mc-t-d      { background: rgba(255,69,58,0.08);   color: var(--red); }
+.mc-s-h      { background: rgba(48,209,88,0.06);   color: var(--green); opacity:0.7; }
+.mc-s-t      { background: rgba(48,209,88,0.08);   color: var(--green); }
+.mc-s-d      { background: rgba(255,69,58,0.15);   color: var(--red); }
+.mc-d-s      { background: rgba(255,107,53,0.1);   color: #FF6B35; }
+.mc-d-t      { background: rgba(255,159,10,0.06);  color: var(--amber); opacity:0.6; }
+
+.matrix-row-label {
+  font-size: 11px; font-weight: 700;
+  padding: 8px 12px; text-align: right;
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════
+   PROGRESS / BAR
+══════════════════════════════════════ */
+.bar-track {
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s cubic-bezier(0.22,1,0.36,1);
+}
+
+.bar-blue   { background: var(--blue); }
+.bar-green  { background: var(--green); }
+.bar-amber  { background: var(--amber); }
+.bar-red    { background: var(--red); }
+
+/* ══════════════════════════════════════
+   HEATMAP
+══════════════════════════════════════ */
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+  margin-top: 12px;
+}
+
+.hm-cell {
+  height: 34px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px;
+  font-family: var(--mono);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.hm-cell:hover { transform: scale(1.12); z-index:2; position: relative; }
+
+.hm-0 { background: rgba(48,209,88,0.08);  color: var(--green); }
+.hm-1 { background: rgba(48,209,88,0.2);   color: var(--green); }
+.hm-2 { background: rgba(255,159,10,0.12); color: var(--amber); }
+.hm-3 { background: rgba(255,159,10,0.25); color: var(--amber); }
+.hm-4 { background: rgba(255,69,58,0.15);  color: var(--red); }
+.hm-5 { background: rgba(255,69,58,0.35);  color: var(--red); }
+
+/* ══════════════════════════════════════
+   INTERVENTION CARD
+══════════════════════════════════════ */
+.intervention-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.intervention-card::before {
+  content: '';
+  position: absolute; top:0; left:0; bottom:0; width: 3px;
+  border-radius: 3px 0 0 3px;
+}
+
+.intervention-card.iv-call::before   { background: var(--blue); }
+.intervention-card.iv-sms::before    { background: var(--cyan); }
+.intervention-card.iv-restr::before  { background: var(--green); }
+.intervention-card.iv-waiver::before { background: var(--amber); }
+
+.intervention-card:hover { border-color: var(--border2); transform: translateX(2px); }
+
+.iv-rank {
+  font-size: 10px; font-family: var(--mono);
+  color: var(--text3); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+.iv-action {
+  font-size: 14px; font-weight: 700;
+  letter-spacing: -0.3px; margin-bottom: 6px;
+}
+
+.iv-meta {
+  font-size: 11px; color: var(--text2);
+  font-family: var(--mono); margin-bottom: 10px;
+}
+
+.iv-stats {
+  display: flex; gap: 16px;
+}
+
+.iv-stat-item { display: flex; flex-direction: column; gap: 2px; }
+.iv-stat-val { font-size: 16px; font-weight: 800; letter-spacing: -0.5px; }
+.iv-stat-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--mono); }
+
+/* ══════════════════════════════════════
+   SLIDER
+══════════════════════════════════════ */
+.slider-group { display: flex; flex-direction: column; gap: 14px; }
+
+.slider-row { display: flex; flex-direction: column; gap: 7px; }
+
+.slider-labels {
+  display: flex; justify-content: space-between;
+  font-size: 12px;
+}
+
+.slider-name { color: var(--text2); }
+.slider-val  { color: var(--cyan); font-family: var(--mono); font-weight: 600; }
+
+input[type=range] {
+  width: 100%; height: 3px;
+  background: var(--surface2);
+  border-radius: 2px; outline: none;
+  appearance: none; cursor: pointer;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--text);
+  border: 3px solid var(--blue);
+  box-shadow: 0 2px 8px rgba(10,132,255,0.4);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+/* ══════════════════════════════════════
+   MODEL HEALTH ROW
+══════════════════════════════════════ */
+.model-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.model-row:last-child { border-bottom: none; }
+
+.model-indicator {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ind-green { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.ind-amber { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+.ind-red   { background: var(--red);   box-shadow: 0 0 8px var(--red); animation: blink 1.2s ease infinite; }
+
+.model-name { font-size: 13px; font-weight: 500; flex: 1; }
+.model-version { font-size: 10px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
+
+.psi-val {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ══════════════════════════════════════
+   COHORT CARD
+══════════════════════════════════════ */
+.cohort-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.cohort-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cohort-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+.cohort-name { font-size: 12px; font-weight: 700; margin-bottom: 3px; letter-spacing: -0.2px; }
+.cohort-size { font-size: 10px; color: var(--text3); font-family: var(--mono); margin-bottom: 12px; }
+.cohort-score { font-size: 26px; font-weight: 800; letter-spacing: -1px; }
+
+/* ══════════════════════════════════════
+   BENCHMARK BARS
+══════════════════════════════════════ */
+.bench-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.bench-row:last-child { border-bottom: none; }
+.bench-name { font-size: 12px; color: var(--text); width: 150px; flex-shrink: 0; }
+.bench-track { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; position: relative; }
+.bench-fill { height: 100%; border-radius: 4px; position: relative; }
+.bench-fill::after {
+  content: '';
+  position: absolute; top: 0; right: 0; bottom: 0; width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15));
+}
+.bench-val { font-family: var(--mono); font-size: 12px; font-weight: 600; width: 38px; text-align: right; flex-shrink: 0; }
+
+/* ══════════════════════════════════════
+   REPORT CARD
+══════════════════════════════════════ */
+.report-card {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 8px;
+}
+
+.report-card:hover { border-color: var(--border2); }
+
+.report-icon-wrap {
+  width: 38px; height: 38px;
+  border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+
+.report-info { flex: 1; }
+.report-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.report-meta { font-size: 11px; color: var(--text2); font-family: var(--mono); }
+.report-actions { display: flex; gap: 6px; }
+
+/* ══════════════════════════════════════
+   AUDIT LOG TABLE
+══════════════════════════════════════ */
+.audit-row {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.audit-row:last-child { border-bottom: none; }
+
+.audit-time {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--text3); width: 80px; flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.audit-icon {
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; flex-shrink: 0;
+}
+
+.audit-content { flex: 1; }
+.audit-title { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+.audit-detail { font-size: 11px; color: var(--text2); font-family: var(--mono); }
+
+/* ══════════════════════════════════════
+   SETTINGS
+══════════════════════════════════════ */
+.settings-section {
+  font-size: 10px; font-family: var(--mono);
+  color: var(--text3); text-transform: uppercase;
+  letter-spacing: 0.12em; font-weight: 600;
+  margin: 20px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-section:first-child { margin-top: 0; }
+
+.settings-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.settings-row:last-child { border-bottom: none; }
+.settings-label { font-size: 13px; font-weight: 500; }
+.settings-desc { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+.toggle {
+  width: 42px; height: 24px;
+  background: var(--surface2);
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+
+.toggle.on { background: var(--blue); border-color: var(--blue); }
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: white;
+  transition: left 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.toggle.on::after { left: 20px; }
+
+/* ── CONN CARD ── */
+.conn-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.conn-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+.conn-card:hover { border-color: var(--blue); }
+.conn-icon { font-size: 20px; }
+.conn-name { font-size: 12px; font-weight: 700; }
+.conn-desc { font-size: 10px; color: var(--text2); }
+.conn-status { font-size: 10px; font-family: var(--mono); font-weight: 600; }
+
+/* ══════════════════════════════════════
+   SCORE RING
+══════════════════════════════════════ */
+.ring-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 10px;
+}
+
+.ring-val {
+  font-size: 48px; font-weight: 800;
+  letter-spacing: -2px; color: var(--cyan);
+  line-height: 1;
+}
+
+.ring-label {
+  font-size: 10px; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  font-family: var(--mono); margin-top: 6px;
+}
+
+/* ══════════════════════════════════════
+   CONFIDENCE BAND CHART
+══════════════════════════════════════ */
+.conf-band-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.conf-band-label { font-size: 11px; color: var(--text2); width: 110px; flex-shrink: 0; }
+.conf-band-track { flex: 1; height: 16px; position: relative; }
+.conf-band-fill  { height: 100%; border-radius: 2px; position: absolute; }
+.conf-band-point { width: 10px; height: 10px; border-radius: 50%; border: 2px solid white; position: absolute; top: 3px; box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
+.conf-band-val { font-family: var(--mono); font-size: 11px; color: var(--text); width: 32px; text-align: right; flex-shrink: 0; }
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+.toast-stack {
+  position: fixed; bottom: 24px; right: 24px;
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 5000;
+}
+
+.toast {
+  background: rgba(20,20,30,0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--blue);
+  border-radius: var(--r-md);
+  padding: 13px 16px;
+  min-width: 300px;
+  animation: toastIn 0.35s cubic-bezier(0.22,1,0.36,1);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+}
+
+@keyframes toastIn {
+  from { transform: translateX(120%) scale(0.9); opacity: 0; }
+  to { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+.toast.t-red    { border-left-color: var(--red); }
+.toast.t-amber  { border-left-color: var(--amber); }
+.toast.t-green  { border-left-color: var(--green); }
+
+.toast-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; letter-spacing: -0.2px; }
+.toast-body  { font-size: 11px; color: var(--text2); }
+
+/* ══════════════════════════════════════
+   TOOLTIP
+══════════════════════════════════════ */
+.has-tip { position: relative; }
+
+.tip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%; transform: translateX(-50%);
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-sm);
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--text);
+  white-space: nowrap;
+  z-index: 300;
+  pointer-events: none;
+  font-family: var(--font);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+.has-tip:hover .tip { display: block; }
+
+/* ══════════════════════════════════════
+   SIM OUTPUT
+══════════════════════════════════════ */
+.sim-output {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 20px;
+  margin-top: 16px;
+  text-align: center;
+}
+
+.sim-big {
+  font-size: 38px; font-weight: 800;
+  color: var(--green); letter-spacing: -1.5px; line-height: 1;
+}
+
+.sim-label { font-size: 11px; color: var(--text2); font-family: var(--mono); margin-top: 6px; }
+
+/* ══════════════════════════════════════
+   DIVIDER
+══════════════════════════════════════ */
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* ══════════════════════════════════════
+   SCHEMA TIER CARD
+══════════════════════════════════════ */
+.tier-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 16px;
+  position: relative; overflow: hidden;
+}
+
+.tier-card::before {
+  content: '';
+  position: absolute; top:0; left:0; right:0; height: 2px;
+}
+
+.tier-lite::before     { background: var(--green); }
+.tier-advanced::before { background: var(--blue); }
+.tier-inst::before     { background: var(--purple); }
+
+.tier-name { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 4px; }
+.tier-desc { font-size: 11px; color: var(--text2); margin-bottom: 12px; }
+
+.tier-fields { display: flex; flex-direction: column; gap: 4px; }
+.tier-field {
+  font-size: 11px; font-family: var(--mono);
+  color: var(--text2); padding: 4px 8px;
+  background: var(--surface); border-radius: 4px;
+  border-left: 2px solid var(--border2);
+}
+
+/* ══════════════════════════════════════
+   FEATURE ENGINEERING VIZ
+══════════════════════════════════════ */
+.feat-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.feat-row:last-child { border-bottom: none; }
+.feat-category { font-size: 10px; font-family: var(--mono); color: var(--text3); width: 100px; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.06em; }
+.feat-generic  { font-size: 11px; color: var(--text3); text-decoration: line-through; flex: 1; }
+.feat-arrow    { color: var(--blue); font-size: 12px; flex-shrink: 0; }
+.feat-sharp    { font-size: 12px; font-weight: 600; color: var(--cyan); flex: 1.5; font-family: var(--mono); }
+.feat-badge    { font-size: 9px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+/* Numbers row */
+.num-row { display: flex; gap: 20px; flex-wrap: wrap; }
+.num-item { display: flex; flex-direction: column; gap: 3px; }
+.num-val { font-size: 22px; font-weight: 800; letter-spacing: -0.8px; }
+.num-label { font-size: 10px; color: var(--text3); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* input */
+.inp {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 10px;
+  color: var(--cyan); font-family: var(--mono); font-size: 13px;
+  outline: none; text-align: center;
+  transition: border-color 0.15s;
+}
+.inp:focus { border-color: var(--blue); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     TOP NAV
+══════════════════════════════════════ -->
+<nav class="topnav">
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    CreditOS
+  </div>
+  <div class="nav-items">
+    <div class="nav-item active" onclick="nav('live-risk',this)">Live Risk</div>
+    <div class="nav-item" onclick="nav('stress-radar',this)">Stress Radar</div>
+    <div class="nav-item" onclick="nav('elasticity',this)">Elasticity</div>
+    <div class="nav-item" onclick="nav('control-room',this)">Control Room</div>
+    <div class="nav-item" onclick="nav('portfolios',this)">Portfolios</div>
+    <div class="nav-item" onclick="nav('benchmarks',this)">Benchmarks</div>
+    <div class="nav-item" onclick="nav('reports',this)">Reports</div>
+    <div class="nav-item" onclick="nav('settings',this)">Settings</div>
+  </div>
+  <div class="nav-right">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input class="search-bar" type="text" placeholder="Borrower, model, signal…">
+    </div>
+    <div class="avatar-wrap has-tip">
+      <div class="tip">Ashneer K. · Admin</div>
+      <div class="avatar">AK</div>
+      <div class="status-dot" style="background:var(--green)"></div>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     ALERT TICKER
+══════════════════════════════════════ -->
+<div class="alert-ticker">
+  <span class="ticker-label">⚡ Live</span>
+  <div class="ticker-inner">
+    <div class="ticker-scroll" id="tickerScroll">
+      <span class="ticker-item">MSME-Cohort-7 <span class="t-red">Stress ▲+12% · Velocity: HIGH</span></span>
+      <span class="ticker-item t-label">·</span>
+      <span class="ticker-item">Model CRED-v2.1 <span class="t-amber">Drift PSI 0.31 · KL 0.18</span></span>
+      <span class="ticker-item t-label">·</span>
+      <span class="ticker-item">Portfolio MH-West <span class="t-green">Confidence ▲83.4 · Stable</span></span>
+      <span class="ticker-item t-label">·</span>
+      <span class="ticker-item">#BRW-9928 <span class="t-red">Distressed · T-minus 21d</span></span>
+      <span class="ticker-item t-label">·</span>
+      <span class="ticker-item">Elasticity Headroom <span class="t-green">+₹4.2Cr unlocked</span></span>
+      <span class="ticker-item t-label">·</span>
+      <span class="ticker-item">Intervention Engine <span class="t-blue">Restructure uplift +₹12L on 38 accounts</span></span>
+      <span class="ticker-item t-label">·</span>
+      <span class="ticker-item">Consumer-Seg-B <span class="t-amber">Tight→Strained velocity accelerating</span></span>
+      <span class="ticker-item t-label">·</span>
+      <span class="ticker-item">Bias Monitor <span class="t-amber">Gender feature flagged in CRED-v2.1</span></span>
+      <span class="ticker-item t-label">·</span>
+      <span class="ticker-item">MSME-Cohort-7 <span class="t-red">Stress ▲+12% · Velocity: HIGH</span></span>
+      <span class="ticker-item t-label">·</span>
+      <span class="ticker-item">Model CRED-v2.1 <span class="t-amber">Drift PSI 0.31 · KL 0.18</span></span>
+      <span class="ticker-item t-label">·</span>
+      <span class="ticker-item">Portfolio MH-West <span class="t-green">Confidence ▲83.4 · Stable</span></span>
+      <span class="ticker-item t-label">·</span>
+      <span class="ticker-item">#BRW-9928 <span class="t-red">Distressed · T-minus 21d</span></span>
+      <span class="ticker-item t-label">·</span>
+      <span class="ticker-item">Elasticity Headroom <span class="t-green">+₹4.2Cr unlocked</span></span>
+      <span class="ticker-item t-label">·</span>
+      <span class="ticker-item">Intervention Engine <span class="t-blue">Restructure uplift +₹12L on 38 accounts</span></span>
+      <span class="ticker-item t-label">·</span>
+      <span class="ticker-item">Consumer-Seg-B <span class="t-amber">Tight→Strained velocity accelerating</span></span>
+      <span class="ticker-item t-label">·</span>
+      <span class="ticker-item">Bias Monitor <span class="t-amber">Gender feature flagged in CRED-v2.1</span></span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ══════════════════════════════════════
+     SCREEN 1: LIVE RISK INTELLIGENCE
+══════════════════════════════════════ -->
+<div class="screen active" id="screen-live-risk">
+  <div class="page-header">
+    <div class="page-title">Live Risk Intelligence</div>
+    <div class="page-sub">Portfolio-wide confidence & stress signals · <span class="live-time">25 Feb 2026 · 10:42 IST</span></div>
+  </div>
+
+  <!-- KPI ROW -->
+  <div class="kpi-grid">
+    <div class="kpi-tile k-blue has-tip" onclick="nav('live-risk',null)" style="cursor:default">
+      <div class="tip">Weighted avg confidence across all active borrowers</div>
+      <div class="kpi-accent"></div>
+      <div class="kpi-label">Portfolio Confidence</div>
+      <div class="kpi-value">78.4</div>
+      <div class="kpi-delta"><span class="d-up">▲ +2.1</span><span class="d-label">vs 30d avg</span></div>
+    </div>
+    <div class="kpi-tile k-red has-tip" onclick="nav('stress-radar',document.querySelector('.nav-item:nth-child(2)'))">
+      <div class="tip">Borrowers showing 3+ stress signals in last 7 days</div>
+      <div class="kpi-accent"></div>
+      <div class="kpi-label">Stress Red Flags</div>
+      <div class="kpi-value">142</div>
+      <div class="kpi-delta"><span class="d-down">▲ +18</span><span class="d-label">new this week</span></div>
+    </div>
+    <div class="kpi-tile k-green has-tip" onclick="nav('elasticity',document.querySelector('.nav-item:nth-child(3)'))">
+      <div class="tip">Safe additional credit capacity available across portfolio</div>
+      <div class="kpi-accent"></div>
+      <div class="kpi-label">Elasticity Headroom</div>
+      <div class="kpi-value">₹47Cr</div>
+      <div class="kpi-delta"><span class="d-up">▲ +₹3.2Cr</span><span class="d-label">this week</span></div>
+    </div>
+    <div class="kpi-tile k-amber has-tip" onclick="nav('control-room',document.querySelector('.nav-item:nth-child(4)'))">
+      <div class="tip">Models exceeding PSI drift threshold of 0.25</div>
+      <div class="kpi-accent"></div>
+      <div class="kpi-label">Model Drift Alerts</div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-delta"><span class="d-flat">— Same</span><span class="d-label">as yesterday</span></div>
+    </div>
+  </div>
+
+  <div class="g32">
+    <!-- MAIN CHART PANEL -->
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-left">
+          <div class="card-icon" style="background:var(--blue-dim)">📈</div>
+          Confidence Score Trend — All Portfolios
+        </div>
+        <span class="tag tag-blue">LIVE</span>
+      </div>
+
+      <svg viewBox="0 0 620 150" width="100%" xmlns="http://www.w3.org/2000/svg" style="display:block">
+        <defs>
+          <linearGradient id="grad-conf" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#64D2FF" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#64D2FF" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="grad-stress" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#FF453A" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#FF453A" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="grad-vel" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#FF9F0A" stop-opacity="0.12"/>
+            <stop offset="100%" stop-color="#FF9F0A" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- grid lines -->
+        <line x1="0" y1="30" x2="620" y2="30" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="0" y1="60" x2="620" y2="60" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="0" y1="90" x2="620" y2="90" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="0" y1="120" x2="620" y2="120" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <!-- confidence area -->
+        <path d="M0,85 C50,78 100,68 150,62 C200,56 250,63 300,58 C350,53 400,46 450,42 C500,38 550,34 620,30 L620,150 L0,150Z" fill="url(#grad-conf)"/>
+        <!-- confidence line -->
+        <path d="M0,85 C50,78 100,68 150,62 C200,56 250,63 300,58 C350,53 400,46 450,42 C500,38 550,34 620,30" fill="none" stroke="#64D2FF" stroke-width="2" stroke-linecap="round"/>
+        <!-- stress area -->
+        <path d="M0,108 C50,105 100,96 150,100 C200,104 250,94 300,90 C350,86 400,95 450,91 C500,87 550,98 620,94 L620,150 L0,150Z" fill="url(#grad-stress)"/>
+        <!-- stress line -->
+        <path d="M0,108 C50,105 100,96 150,100 C200,104 250,94 300,90 C350,86 400,95 450,91 C500,87 550,98 620,94" fill="none" stroke="#FF453A" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5,3"/>
+        <!-- velocity line -->
+        <path d="M0,125 C50,122 100,118 150,120 C200,122 250,116 300,112 C350,108 400,115 450,110 C500,105 550,118 620,115" fill="none" stroke="#FF9F0A" stroke-width="1" stroke-linecap="round" stroke-dasharray="3,4" opacity="0.7"/>
+        <!-- live dot -->
+        <circle cx="620" cy="30" r="4" fill="#64D2FF" opacity="0.9"/>
+        <circle cx="620" cy="30" r="8" fill="none" stroke="#64D2FF" stroke-width="1" opacity="0.3"/>
+        <!-- legend -->
+        <circle cx="12" cy="142" r="3" fill="#64D2FF"/>
+        <text x="20" y="146" fill="rgba(255,255,255,0.5)" font-size="10" font-family="Geist Mono,monospace">Confidence</text>
+        <circle cx="95" cy="142" r="3" fill="#FF453A"/>
+        <text x="103" y="146" fill="rgba(255,255,255,0.5)" font-size="10" font-family="Geist Mono,monospace">Stress Index</text>
+        <circle cx="185" cy="142" r="3" fill="#FF9F0A"/>
+        <text x="193" y="146" fill="rgba(255,255,255,0.5)" font-size="10" font-family="Geist Mono,monospace">Velocity</text>
+        <!-- x-axis labels -->
+        <text x="0" y="150" fill="rgba(255,255,255,0.2)" font-size="8" font-family="Geist Mono,monospace">1 Jan</text>
+        <text x="92" y="150" fill="rgba(255,255,255,0.2)" font-size="8" font-family="Geist Mono,monospace">15 Jan</text>
+        <text x="188" y="150" fill="rgba(255,255,255,0.2)" font-size="8" font-family="Geist Mono,monospace">1 Feb</text>
+        <text x="286" y="150" fill="rgba(255,255,255,0.2)" font-size="8" font-family="Geist Mono,monospace">10 Feb</text>
+        <text x="386" y="150" fill="rgba(255,255,255,0.2)" font-size="8" font-family="Geist Mono,monospace">18 Feb</text>
+        <text x="486" y="150" fill="rgba(255,255,255,0.2)" font-size="8" font-family="Geist Mono,monospace">24 Feb</text>
+        <text x="590" y="150" fill="#64D2FF" font-size="8" font-family="Geist Mono,monospace">Now</text>
+      </svg>
+
+      <div class="divider"></div>
+
+      <!-- BORROWER TABLE — full 9-column view with velocity, lead time, confidence band -->
+      <div class="card-title" style="margin-bottom:12px">
+        <span>Top Risk Borrowers</span>
+        <button class="btn btn-secondary btn-sm">View All 4,821</button>
+      </div>
+
+      <div class="filter-row">
+        <button class="filter-btn active">All</button>
+        <button class="filter-btn">Distressed</button>
+        <button class="filter-btn">Strained</button>
+        <button class="filter-btn">Tight</button>
+        <button class="filter-btn">High Velocity</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="dt">
+          <thead>
+            <tr>
+              <th>Borrower ID</th>
+              <th>Segment</th>
+              <th>Stress State</th>
+              <th>Stress Prob%</th>
+              <th>Velocity</th>
+              <th>Lead Time</th>
+              <th>Confidence Band</th>
+              <th>Migration Prob</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr onclick="showToast('🔍 BRW-9928 loaded','Multi-state profile drilling down…','blue')">
+              <td><span class="id-code">#BRW-9928</span></td>
+              <td><span class="tag tag-amber">MSME</span></td>
+              <td><span class="state-pill state-distressed"><span class="state-dot"></span>Distressed</span></td>
+              <td style="font-family:var(--mono);color:var(--red);font-weight:700">82.4%</td>
+              <td><span class="vel-score vel-up">▲ HIGH 0.91</span></td>
+              <td><span class="tag tag-red">T–21d</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <svg width="70" height="14" viewBox="0 0 70 14">
+                    <rect x="10" y="4" width="50" height="6" rx="3" fill="rgba(255,69,58,0.15)"/>
+                    <rect x="10" y="4" width="50" height="6" rx="3" fill="none" stroke="rgba(255,69,58,0.3)" stroke-width="0.5"/>
+                    <circle cx="52" cy="7" r="3" fill="#FF453A"/>
+                  </svg>
+                  <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">Low</span>
+                </div>
+              </td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--red)">+Worsening 0.73</span></td>
+              <td><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();showToast('Intervention Engine','Counterfactual analysis triggered for BRW-9928','amber')">Review</button></td>
+            </tr>
+            <tr onclick="showToast('🔍 BRW-4451 loaded','Monitoring initiated','amber')">
+              <td><span class="id-code">#BRW-4451</span></td>
+              <td><span class="tag tag-blue">Consumer</span></td>
+              <td><span class="state-pill state-strained"><span class="state-dot"></span>Strained</span></td>
+              <td style="font-family:var(--mono);color:#FF6B35;font-weight:700">61.8%</td>
+              <td><span class="vel-score vel-up">▲ MED 0.58</span></td>
+              <td><span class="tag tag-amber">T–35d</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <svg width="70" height="14" viewBox="0 0 70 14">
+                    <rect x="8" y="4" width="54" height="6" rx="3" fill="rgba(255,159,10,0.15)"/>
+                    <circle cx="46" cy="7" r="3" fill="#FF9F0A"/>
+                  </svg>
+                  <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">Med</span>
+                </div>
+              </td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--amber)">+Worsening 0.51</span></td>
+              <td><button class="btn btn-danger btn-sm" onclick="event.stopPropagation()">Review</button></td>
+            </tr>
+            <tr onclick="showToast('🔍 BRW-7723 loaded','Behavioral fingerprint loaded','blue')">
+              <td><span class="id-code">#BRW-7723</span></td>
+              <td><span class="tag tag-purple">AgriSME</span></td>
+              <td><span class="state-pill state-tight"><span class="state-dot"></span>Tight</span></td>
+              <td style="font-family:var(--mono);color:var(--amber);font-weight:700">44.2%</td>
+              <td><span class="vel-score vel-up">▲ LOW 0.32</span></td>
+              <td><span class="tag tag-amber">T–62d</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <svg width="70" height="14" viewBox="0 0 70 14">
+                    <rect x="12" y="4" width="46" height="6" rx="3" fill="rgba(255,159,10,0.1)"/>
+                    <circle cx="35" cy="7" r="3" fill="#FF9F0A"/>
+                  </svg>
+                  <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">Med</span>
+                </div>
+              </td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--amber)">Flat 0.28</span></td>
+              <td><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation()">Monitor</button></td>
+            </tr>
+            <tr onclick="showToast('🔍 BRW-1290 loaded','Profile stable · Confidence 81.2%','green')">
+              <td><span class="id-code">#BRW-1290</span></td>
+              <td><span class="tag tag-blue">Consumer</span></td>
+              <td><span class="state-pill state-healthy"><span class="state-dot"></span>Healthy</span></td>
+              <td style="font-family:var(--mono);color:var(--green);font-weight:700">12.1%</td>
+              <td><span class="vel-score vel-down">▼ STABLE 0.08</span></td>
+              <td><span class="tag tag-green">No Risk</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <svg width="70" height="14" viewBox="0 0 70 14">
+                    <rect x="15" y="4" width="40" height="6" rx="3" fill="rgba(48,209,88,0.12)"/>
+                    <circle cx="22" cy="7" r="3" fill="#30D158"/>
+                  </svg>
+                  <span style="font-family:var(--mono);font-size:10px;color:var(--green)">High</span>
+                </div>
+              </td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--green)">Stable 0.06</span></td>
+              <td><button class="btn btn-success btn-sm" onclick="event.stopPropagation()">Expand</button></td>
+            </tr>
+            <tr onclick="showToast('🔍 BRW-3388 loaded','Intervention recommended','amber')">
+              <td><span class="id-code">#BRW-3388</span></td>
+              <td><span class="tag tag-amber">MSME</span></td>
+              <td><span class="state-pill state-strained"><span class="state-dot"></span>Strained</span></td>
+              <td style="font-family:var(--mono);color:#FF6B35;font-weight:700">58.7%</td>
+              <td><span class="vel-score vel-up">▲ MED 0.49</span></td>
+              <td><span class="tag tag-amber">T–41d</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <svg width="70" height="14" viewBox="0 0 70 14">
+                    <rect x="10" y="4" width="50" height="6" rx="3" fill="rgba(255,107,53,0.12)"/>
+                    <circle cx="42" cy="7" r="3" fill="#FF6B35"/>
+                  </svg>
+                  <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">Med</span>
+                </div>
+              </td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--amber)">+Worsening 0.44</span></td>
+              <td><button class="btn btn-danger btn-sm" onclick="event.stopPropagation()">Review</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+
+      <!-- STRESS STATE DISTRIBUTION -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-left">
+            <div class="card-icon" style="background:rgba(255,69,58,0.1)">🎯</div>
+            State Distribution
+          </div>
+          <span class="tag tag-grey">4-State Model</span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12px;display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block"></span>Healthy</span>
+              <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--green)">68.2% · 3,284</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill bar-green" style="width:68.2%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12px;display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--amber);display:inline-block"></span>Tight</span>
+              <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--amber)">18.4% · 886</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill bar-amber" style="width:18.4%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12px;display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#FF6B35;display:inline-block"></span>Strained</span>
+              <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:#FF6B35">9.1% · 438</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill" style="width:9.1%;background:#FF6B35"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12px;display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block"></span>Distressed</span>
+              <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--red)">4.3% · 213</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill bar-red" style="width:4.3%"></div></div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);text-align:center">Total Monitored: 4,821 borrowers</div>
+      </div>
+
+      <!-- LIVE SIGNALS -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-left">
+            <div class="card-icon" style="background:rgba(100,210,255,0.1)">📡</div>
+            Live Signals
+          </div>
+          <span class="tag tag-red" style="animation:blink 2s infinite">3 New</span>
+        </div>
+
+        <div class="signal-feed">
+          <div class="signal-item sig-red" onclick="showToast('BRW-9928 Escalated','Delinquency threshold crossed','red')">
+            <div class="signal-dot" style="background:var(--red);box-shadow:0 0 6px var(--red)"></div>
+            <div class="signal-content">
+              <div class="signal-title">#BRW-9928 crossed pre-delinquency threshold</div>
+              <div class="signal-meta">Velocity 0.91 · Strained→Distressed migration</div>
+            </div>
+            <div class="signal-time">2m ago</div>
+          </div>
+          <div class="signal-item sig-amber" onclick="showToast('Model Drift','CRED-v2.1 PSI exceeded 0.25','amber')">
+            <div class="signal-dot" style="background:var(--amber);box-shadow:0 0 6px var(--amber)"></div>
+            <div class="signal-content">
+              <div class="signal-title">CRED-v2.1 drift alert: PSI 0.31</div>
+              <div class="signal-meta">KL Divergence 0.18 · Regime shift detected</div>
+            </div>
+            <div class="signal-time">18m ago</div>
+          </div>
+          <div class="signal-item sig-green" onclick="showToast('Intervention Success','Restructure lifted BRW-2201 to Healthy','green')">
+            <div class="signal-dot" style="background:var(--green);box-shadow:0 0 6px var(--green)"></div>
+            <div class="signal-content">
+              <div class="signal-title">Intervention success: BRW-2201 recovered</div>
+              <div class="signal-meta">Restructure uplift +₹1.2L · Now Healthy</div>
+            </div>
+            <div class="signal-time">1h ago</div>
+          </div>
+          <div class="signal-item sig-amber">
+            <div class="signal-dot" style="background:var(--amber)"></div>
+            <div class="signal-content">
+              <div class="signal-title">Consumer-Seg-B: velocity accelerating</div>
+              <div class="signal-meta">38 accounts entering Tight zone</div>
+            </div>
+            <div class="signal-time">2h ago</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 2: STRESS RADAR — MULTI-STATE
+══════════════════════════════════════ -->
+<div class="screen" id="screen-stress-radar">
+  <div class="page-header">
+    <div class="page-title">Stress Radar</div>
+    <div class="page-sub">Multi-state migration model · Markov transition matrix · Behavioral deviation tracking</div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-tile k-red"><div class="kpi-accent"></div><div class="kpi-label">Distressed Now</div><div class="kpi-value">213</div><div class="kpi-delta"><span class="d-down">▲ +9</span><span class="d-label">this week</span></div></div>
+    <div class="kpi-tile k-amber"><div class="kpi-accent"></div><div class="kpi-label">Tight→Strained Alerts</div><div class="kpi-value">67</div><div class="kpi-delta"><span class="d-down">▲ +14</span><span class="d-label">this week</span></div></div>
+    <div class="kpi-tile k-blue"><div class="kpi-accent"></div><div class="kpi-label">Avg Velocity Index</div><div class="kpi-value">0.34</div><div class="kpi-delta"><span class="d-down">▲ +0.06</span><span class="d-label">vs baseline</span></div></div>
+    <div class="kpi-tile k-green"><div class="kpi-accent"></div><div class="kpi-label">Recovery Rate (30d)</div><div class="kpi-value">71.2%</div><div class="kpi-delta"><span class="d-up">▲ +3.1pp</span><span class="d-label">last month</span></div></div>
+  </div>
+
+  <div class="g2">
+    <!-- MARKOV TRANSITION MATRIX -->
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-left">
+          <div class="card-icon" style="background:var(--blue-dim)">🔀</div>
+          Markov Transition Matrix
+        </div>
+        <span class="tag tag-blue">30-Day Window</span>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:14px;font-family:var(--mono)">P(next state | current state) — Each row sums to 1.0</div>
+
+      <div class="matrix-wrap">
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th style="color:var(--green)">→ Healthy</th>
+              <th style="color:var(--amber)">→ Tight</th>
+              <th style="color:#FF6B35">→ Strained</th>
+              <th style="color:var(--red)">→ Distressed</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="matrix-row-label" style="color:var(--green)">Healthy</td>
+              <td class="mc-diag">0.91</td>
+              <td class="mc-h-t">0.07</td>
+              <td class="mc-h-s">0.015</td>
+              <td class="mc-h-d">0.005</td>
+            </tr>
+            <tr>
+              <td class="matrix-row-label" style="color:var(--amber)">Tight</td>
+              <td class="mc-t-h">0.38</td>
+              <td class="mc-diag">0.44</td>
+              <td class="mc-t-s">0.14</td>
+              <td class="mc-t-d">0.04</td>
+            </tr>
+            <tr>
+              <td class="matrix-row-label" style="color:#FF6B35">Strained</td>
+              <td class="mc-s-h">0.11</td>
+              <td class="mc-s-t">0.22</td>
+              <td class="mc-diag">0.48</td>
+              <td class="mc-s-d">0.19</td>
+            </tr>
+            <tr>
+              <td class="matrix-row-label" style="color:var(--red)">Distressed</td>
+              <td class="mc-d-t" style="opacity:0.4">0.03</td>
+              <td class="mc-d-t">0.09</td>
+              <td class="mc-d-s">0.21</td>
+              <td class="mc-diag">0.67</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+        <span style="font-size:11px;color:var(--text3);font-family:var(--mono)">Diagonals = stay probability · Off-diagonals = migration risk</span>
+      </div>
+    </div>
+
+    <!-- VELOCITY DISTRIBUTION + BEHAVIORAL BASELINE -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-left">
+            <div class="card-icon" style="background:rgba(255,159,10,0.1)">⚡</div>
+            Velocity Index Distribution
+          </div>
+        </div>
+
+        <svg viewBox="0 0 300 100" width="100%" style="display:block;margin-bottom:8px">
+          <defs>
+            <linearGradient id="vg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FF9F0A" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#FF9F0A" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,95 C20,95 30,90 50,75 C70,60 80,30 100,20 C120,10 140,15 160,30 C180,50 200,70 230,85 C260,92 280,94 300,95 L300,100 L0,100Z" fill="url(#vg)"/>
+          <path d="M0,95 C20,95 30,90 50,75 C70,60 80,30 100,20 C120,10 140,15 160,30 C180,50 200,70 230,85 C260,92 280,94 300,95" fill="none" stroke="#FF9F0A" stroke-width="1.5"/>
+          <line x1="100" y1="0" x2="100" y2="100" stroke="rgba(255,159,10,0.3)" stroke-width="1" stroke-dasharray="3,3"/>
+          <text x="102" y="12" fill="rgba(255,255,255,0.4)" font-size="8" font-family="Geist Mono,monospace">Peak</text>
+          <text x="0" y="100" fill="rgba(255,255,255,0.2)" font-size="7" font-family="Geist Mono,monospace">0</text>
+          <text x="140" y="100" fill="rgba(255,255,255,0.2)" font-size="7" font-family="Geist Mono,monospace">0.5</text>
+          <text x="285" y="100" fill="rgba(255,255,255,0.2)" font-size="7" font-family="Geist Mono,monospace">1.0</text>
+        </svg>
+
+        <div style="display:flex;gap:12px">
+          <div class="num-item"><div class="num-val" style="color:var(--green)">0.08</div><div class="num-label">Avg Healthy</div></div>
+          <div class="num-item"><div class="num-val" style="color:var(--amber)">0.41</div><div class="num-label">Avg Tight</div></div>
+          <div class="num-item"><div class="num-val" style="color:#FF6B35">0.67</div><div class="num-label">Avg Strained</div></div>
+          <div class="num-item"><div class="num-val" style="color:var(--red)">0.91</div><div class="num-label">Avg Distressed</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-left">
+            <div class="card-icon" style="background:var(--blue-dim)">🧬</div>
+            Behavioral Baseline Deviation
+          </div>
+          <span class="tag tag-grey">Z-score drift</span>
+        </div>
+        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:12px">Per-borrower deviation vs individual baseline — not cross-sectional average</div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px">
+              <span style="color:var(--text2)">Inflow Volatility Index</span>
+              <span style="font-family:var(--mono);color:var(--red)">Z = +3.2σ</span>
+            </div>
+            <div class="bar-track" style="height:8px"><div class="bar-fill bar-red" style="width:80%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px">
+              <span style="color:var(--text2)">Essential/Discretionary Tilt</span>
+              <span style="font-family:var(--mono);color:var(--amber)">Z = +2.1σ</span>
+            </div>
+            <div class="bar-track" style="height:8px"><div class="bar-fill bar-amber" style="width:52%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px">
+              <span style="color:var(--text2)">DPD Acceleration Gradient</span>
+              <span style="font-family:var(--mono);color:var(--amber)">Z = +1.8σ</span>
+            </div>
+            <div class="bar-track" style="height:8px"><div class="bar-fill bar-amber" style="width:45%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px">
+              <span style="color:var(--text2)">Bounce Proximity Threshold</span>
+              <span style="font-family:var(--mono);color:var(--green)">Z = +0.4σ</span>
+            </div>
+            <div class="bar-track" style="height:8px"><div class="bar-fill bar-green" style="width:10%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEATMAP -->
+  <div class="card mt24">
+    <div class="card-title">
+      <div class="card-title-left">
+        <div class="card-icon" style="background:rgba(255,69,58,0.1)">🗺</div>
+        Portfolio Stress Heatmap — Product × Region
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary btn-sm">Export</button>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:16px;margin-bottom:12px;font-size:11px;font-family:var(--mono)">
+      <span><span style="display:inline-block;width:10px;height:10px;background:rgba(48,209,88,0.2);border-radius:2px;margin-right:4px"></span>Healthy</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:rgba(255,159,10,0.25);border-radius:2px;margin-right:4px"></span>Tight</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:rgba(255,107,53,0.25);border-radius:2px;margin-right:4px"></span>Strained</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:rgba(255,69,58,0.4);border-radius:2px;margin-right:4px"></span>Distressed</span>
+    </div>
+
+    <div class="heatmap-grid">
+      <div class="hm-cell hm-1" title="MH-Mumbai Consumer">MH</div>
+      <div class="hm-cell hm-0" title="GJ-Ahmedabad Consumer">GJ</div>
+      <div class="hm-cell hm-2" title="DL-Delhi MSME">DL</div>
+      <div class="hm-cell hm-4" title="UP-Lucknow MSME">UP</div>
+      <div class="hm-cell hm-1" title="KA-Bangalore Consumer">KA</div>
+      <div class="hm-cell hm-3" title="RJ-Jaipur AgriSME">RJ</div>
+      <div class="hm-cell hm-0" title="TN-Chennai Consumer">TN</div>
+      <div class="hm-cell hm-2" title="WB-Kolkata MSME">WB</div>
+      <div class="hm-cell hm-5" title="BH-Patna AgriSME">BH</div>
+      <div class="hm-cell hm-1" title="HR-Gurgaon Consumer">HR</div>
+      <div class="hm-cell hm-3" title="MP-Bhopal MSME">MP</div>
+      <div class="hm-cell hm-0" title="PB-Chandigarh Consumer">PB</div>
+      <div class="hm-cell hm-2" title="OD-Bhubaneswar AgriSME">OD</div>
+      <div class="hm-cell hm-4" title="JH-Ranchi MSME">JH</div>
+      <div class="hm-cell hm-1" title="AP-Hyderabad Consumer">AP</div>
+      <div class="hm-cell hm-0" title="KL-Kochi Consumer">KL</div>
+      <div class="hm-cell hm-3" title="AS-Guwahati AgriSME">AS</div>
+      <div class="hm-cell hm-2" title="CG-Raipur MSME">CG</div>
+      <div class="hm-cell hm-1" title="UK-Dehradun Consumer">UK</div>
+      <div class="hm-cell hm-5" title="MN-Imphal AgriSME">MN</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:9px;font-family:var(--mono);color:var(--text3);margin-top:8px">
+      <span>State codes · Hover for details</span>
+      <span>Last updated: 10:42 IST</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 3: ELASTICITY + INTERVENTION
+══════════════════════════════════════ -->
+<div class="screen" id="screen-elasticity">
+  <div class="page-header">
+    <div class="page-title">Elasticity & Intervention Engine</div>
+    <div class="page-sub">Counterfactual uplift modeling · Survival hazard curves · ROI-ranked action recommendations</div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-tile k-green"><div class="kpi-accent"></div><div class="kpi-label">Elasticity Headroom</div><div class="kpi-value">₹47Cr</div><div class="kpi-delta"><span class="d-up">▲ +₹3.2Cr</span><span class="d-label">this week</span></div></div>
+    <div class="kpi-tile k-blue"><div class="kpi-accent"></div><div class="kpi-label">Intervention ROI</div><div class="kpi-value">3.8×</div><div class="kpi-delta"><span class="d-up">▲ +0.4×</span><span class="d-label">vs baseline</span></div></div>
+    <div class="kpi-tile k-green"><div class="kpi-accent"></div><div class="kpi-label">Accounts Recoverable</div><div class="kpi-value">384</div><div class="kpi-delta"><span class="d-up">78%</span><span class="d-label">act now</span></div></div>
+    <div class="kpi-tile k-amber"><div class="kpi-accent"></div><div class="kpi-label">Avg Lead Time Gain</div><div class="kpi-value">28d</div><div class="kpi-delta"><span class="d-up">▲ +6d</span><span class="d-label">vs last model</span></div></div>
+  </div>
+
+  <div class="g2">
+    <!-- INTERVENTION RECOMMENDATIONS -->
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-left">
+          <div class="card-icon" style="background:var(--green-dim)">🎯</div>
+          Counterfactual Intervention Mapping
+        </div>
+        <span class="tag tag-blue">Uplift Ranked</span>
+      </div>
+      <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:16px">Ranked by expected intervention lift (EIL) · Probability of avoiding delinquency</div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="intervention-card iv-restr" onclick="showToast('Restructure Plan','Generating for 38 strained accounts…','green')">
+          <div class="iv-rank">Rank 1 · Highest ROI</div>
+          <div class="iv-action">Proactive Restructuring</div>
+          <div class="iv-meta">Target: Strained cohort · 38 accounts · avg outstanding ₹4.2L</div>
+          <div class="iv-stats">
+            <div class="iv-stat-item"><div class="iv-stat-val" style="color:var(--green)">+73%</div><div class="iv-stat-label">Recovery lift</div></div>
+            <div class="iv-stat-item"><div class="iv-stat-val" style="color:var(--green)">₹12.1L</div><div class="iv-stat-label">Expected ROI</div></div>
+            <div class="iv-stat-item"><div class="iv-stat-val" style="color:var(--blue)">T–14d</div><div class="iv-stat-label">Act before</div></div>
+          </div>
+        </div>
+
+        <div class="intervention-card iv-call" onclick="showToast('Call Campaign','Queued 67 accounts for agent outreach','blue')">
+          <div class="iv-rank">Rank 2 · High Volume</div>
+          <div class="iv-action">Targeted Agent Call</div>
+          <div class="iv-meta">Target: Tight cohort trending → Strained · 67 accounts</div>
+          <div class="iv-stats">
+            <div class="iv-stat-item"><div class="iv-stat-val" style="color:var(--blue)">+41%</div><div class="iv-stat-label">Retention lift</div></div>
+            <div class="iv-stat-item"><div class="iv-stat-val" style="color:var(--blue)">₹5.8L</div><div class="iv-stat-label">Expected ROI</div></div>
+            <div class="iv-stat-item"><div class="iv-stat-val" style="color:var(--amber)">T–28d</div><div class="iv-stat-label">Act before</div></div>
+          </div>
+        </div>
+
+        <div class="intervention-card iv-sms" onclick="showToast('SMS Campaign','Digital nudge scheduled for 142 accounts','blue')">
+          <div class="iv-rank">Rank 3 · High Scale</div>
+          <div class="iv-action">Smart SMS Nudge</div>
+          <div class="iv-meta">Target: Tight cohort · 142 accounts · personalised message</div>
+          <div class="iv-stats">
+            <div class="iv-stat-item"><div class="iv-stat-val" style="color:var(--cyan)">+22%</div><div class="iv-stat-label">Engagement lift</div></div>
+            <div class="iv-stat-item"><div class="iv-stat-val" style="color:var(--cyan)">₹2.1L</div><div class="iv-stat-label">Expected ROI</div></div>
+            <div class="iv-stat-item"><div class="iv-stat-val" style="color:var(--green)">T–42d</div><div class="iv-stat-label">Act before</div></div>
+          </div>
+        </div>
+
+        <div class="intervention-card iv-waiver" onclick="showToast('Penalty Waiver','Selective waiver plan generated','amber')">
+          <div class="iv-rank">Rank 4 · Selective</div>
+          <div class="iv-action">Penalty Waiver (Selective)</div>
+          <div class="iv-meta">Target: Distressed · liquidity-shock cases · 12 accounts</div>
+          <div class="iv-stats">
+            <div class="iv-stat-item"><div class="iv-stat-val" style="color:var(--amber)">+61%</div><div class="iv-stat-label">Save probability</div></div>
+            <div class="iv-stat-item"><div class="iv-stat-val" style="color:var(--amber)">₹3.4L</div><div class="iv-stat-label">Net saved</div></div>
+            <div class="iv-stat-item"><div class="iv-stat-val" style="color:var(--red)">T–7d</div><div class="iv-stat-label">Act URGENT</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: SURVIVAL CURVE + SIMULATOR -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <!-- SURVIVAL HAZARD CURVE -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-left">
+            <div class="card-icon" style="background:rgba(100,210,255,0.1)">📉</div>
+            Survival Hazard Curve
+          </div>
+          <span class="tag tag-grey">Cox Proportional Hazard</span>
+        </div>
+        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:8px">P(no delinquency) over time · #BRW-9928 vs portfolio avg</div>
+
+        <svg viewBox="0 0 300 120" width="100%" style="display:block">
+          <defs>
+            <linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#64D2FF" stop-opacity="0.15"/>
+              <stop offset="100%" stop-color="#64D2FF" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="sg2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FF453A" stop-opacity="0.1"/>
+              <stop offset="100%" stop-color="#FF453A" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- grid -->
+          <line x1="0" y1="30" x2="300" y2="30" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <line x1="0" y1="60" x2="300" y2="60" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <line x1="0" y1="90" x2="300" y2="90" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <!-- portfolio avg survival -->
+          <path d="M0,10 C40,10 60,12 100,16 C140,20 180,28 220,40 C260,52 280,62 300,70 L300,110 L0,110Z" fill="url(#sg1)"/>
+          <path d="M0,10 C40,10 60,12 100,16 C140,20 180,28 220,40 C260,52 280,62 300,70" fill="none" stroke="#64D2FF" stroke-width="1.5"/>
+          <!-- BRW-9928 survival curve -->
+          <path d="M0,10 C20,12 40,20 70,35 C100,50 130,65 160,80 C190,88 230,95 300,100 L300,110 L0,110Z" fill="url(#sg2)"/>
+          <path d="M0,10 C20,12 40,20 70,35 C100,50 130,65 160,80 C190,88 230,95 300,100" fill="none" stroke="#FF453A" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <!-- T-21d marker -->
+          <line x1="160" y1="0" x2="160" y2="110" stroke="rgba(255,159,10,0.4)" stroke-width="1" stroke-dasharray="2,2"/>
+          <text x="162" y="12" fill="#FF9F0A" font-size="8" font-family="Geist Mono,monospace">T–21d</text>
+          <!-- labels -->
+          <circle cx="5" cy="105" r="3" fill="#64D2FF"/>
+          <text x="12" y="109" fill="rgba(255,255,255,0.4)" font-size="8" font-family="Geist Mono,monospace">Portfolio avg</text>
+          <circle cx="88" cy="105" r="3" fill="#FF453A"/>
+          <text x="95" y="109" fill="rgba(255,255,255,0.4)" font-size="8" font-family="Geist Mono,monospace">BRW-9928</text>
+          <!-- y-axis -->
+          <text x="1" y="13" fill="rgba(255,255,255,0.2)" font-size="7" font-family="Geist Mono,monospace">1.0</text>
+          <text x="1" y="63" fill="rgba(255,255,255,0.2)" font-size="7" font-family="Geist Mono,monospace">0.5</text>
+          <text x="1" y="93" fill="rgba(255,255,255,0.2)" font-size="7" font-family="Geist Mono,monospace">0.2</text>
+          <!-- x-axis -->
+          <text x="0" y="120" fill="rgba(255,255,255,0.2)" font-size="7" font-family="Geist Mono,monospace">0d</text>
+          <text x="137" y="120" fill="rgba(255,255,255,0.2)" font-size="7" font-family="Geist Mono,monospace">30d</text>
+          <text x="274" y="120" fill="rgba(255,255,255,0.2)" font-size="7" font-family="Geist Mono,monospace">60d</text>
+        </svg>
+      </div>
+
+      <!-- SCENARIO SIMULATOR -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-left">
+            <div class="card-icon" style="background:var(--green-dim)">🔬</div>
+            Scenario Simulator
+          </div>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-row">
+            <div class="slider-labels">
+              <span class="slider-name">Portfolio Stress Level</span>
+              <span class="slider-val" id="sv-stress">Moderate (0.38)</span>
+            </div>
+            <input type="range" min="1" max="6" value="3" oninput="updateSimRaw(this,'sv-stress');recalcSim()">
+          </div>
+          <div class="slider-row">
+            <div class="slider-labels">
+              <span class="slider-name">Intervention Coverage %</span>
+              <span class="slider-val" id="sv-cov">60%</span>
+            </div>
+            <input type="range" min="0" max="100" value="60" oninput="updateSim(this,'sv-cov',v=>v+'%');recalcSim()">
+          </div>
+          <div class="slider-row">
+            <div class="slider-labels">
+              <span class="slider-name">Market Scenario</span>
+              <span class="slider-val" id="sv-market">Base</span>
+            </div>
+            <input type="range" min="1" max="3" value="1" oninput="updateScenario(this)">
+          </div>
+        </div>
+
+        <div class="sim-output">
+          <div class="sim-big" id="sim-result">₹3.2L</div>
+          <div class="sim-label">Projected NPA Saved (30d horizon)</div>
+          <div style="display:flex;justify-content:center;gap:16px;margin-top:12px">
+            <div class="num-item" style="text-align:center"><div style="font-size:14px;font-weight:700;color:var(--blue)">28d</div><div class="num-label">Lead Time Gain</div></div>
+            <div class="num-item" style="text-align:center"><div style="font-size:14px;font-weight:700;color:var(--green)">3.8×</div><div class="num-label">ROI Multiplier</div></div>
+            <div class="num-item" style="text-align:center"><div style="font-size:14px;font-weight:700;color:var(--cyan)">91.2%</div><div class="num-label">Model Confidence</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 4: CONTROL ROOM — MODEL GOVERNANCE
+══════════════════════════════════════ -->
+<div class="screen" id="screen-control-room">
+  <div class="page-header">
+    <div class="page-title">Model Control Room</div>
+    <div class="page-sub">Regime-aware drift detection · PSI + KL divergence monitoring · Calibration health · Feature importance</div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-tile k-green"><div class="kpi-accent"></div><div class="kpi-label">Models Healthy</div><div class="kpi-value">6</div><div class="kpi-delta"><span class="d-flat">— Same</span><span class="d-label">as yesterday</span></div></div>
+    <div class="kpi-tile k-amber"><div class="kpi-accent"></div><div class="kpi-label">Models Drifting</div><div class="kpi-value">3</div><div class="kpi-delta"><span class="d-down">▲ +1</span><span class="d-label">new alert</span></div></div>
+    <div class="kpi-tile k-blue"><div class="kpi-accent"></div><div class="kpi-label">Avg AUC Score</div><div class="kpi-value">0.871</div><div class="kpi-delta"><span class="d-down">▼ -0.012</span><span class="d-label">30d trend</span></div></div>
+    <div class="kpi-tile k-red"><div class="kpi-accent"></div><div class="kpi-label">Bias Flags</div><div class="kpi-value">2</div><div class="kpi-delta"><span class="d-down">▲ +2</span><span class="d-label">new this week</span></div></div>
+  </div>
+
+  <div class="g2">
+    <!-- MODEL HEALTH TABLE -->
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-left">
+          <div class="card-icon" style="background:var(--blue-dim)">🤖</div>
+          Model Registry & Health
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="showToast('Retrain Queued','CRED-v2.1 scheduled for T+4h','blue')">+ Queue Retrain</button>
+      </div>
+
+      <div style="display:flex;flex-direction:column">
+        <div class="model-row">
+          <div class="model-indicator ind-green"></div>
+          <div style="flex:1">
+            <div class="model-name">CRED-v3.1 · Multinomial Stress Classifier</div>
+            <div class="model-version">Gradient Boosting · 4-state · deployed 12 Jan</div>
+          </div>
+          <div style="text-align:right">
+            <div class="psi-val" style="color:var(--green)">PSI 0.08</div>
+            <div style="font-size:10px;color:var(--text3);font-family:var(--mono)">AUC 0.901</div>
+          </div>
+          <span class="tag tag-green">Healthy</span>
+        </div>
+
+        <div class="model-row">
+          <div class="model-indicator ind-green"></div>
+          <div style="flex:1">
+            <div class="model-name">MARKOV-v1.2 · Transition Probability Engine</div>
+            <div class="model-version">Markov Chain · 4×4 matrix · deployed 8 Feb</div>
+          </div>
+          <div style="text-align:right">
+            <div class="psi-val" style="color:var(--green)">PSI 0.12</div>
+            <div style="font-size:10px;color:var(--text3);font-family:var(--mono)">KL 0.07</div>
+          </div>
+          <span class="tag tag-green">Healthy</span>
+        </div>
+
+        <div class="model-row">
+          <div class="model-indicator ind-amber"></div>
+          <div style="flex:1">
+            <div class="model-name">CRED-v2.1 · Legacy PD Classifier</div>
+            <div class="model-version">XGBoost · binary · deployed 3 Nov</div>
+          </div>
+          <div style="text-align:right">
+            <div class="psi-val" style="color:var(--amber)">PSI 0.31</div>
+            <div style="font-size:10px;color:var(--text3);font-family:var(--mono)">AUC 0.833</div>
+          </div>
+          <span class="tag tag-amber">Drifting</span>
+        </div>
+
+        <div class="model-row">
+          <div class="model-indicator ind-green"></div>
+          <div style="flex:1">
+            <div class="model-name">COX-v2.0 · Survival Hazard Model</div>
+            <div class="model-version">Cox Proportional Hazard · time-to-event · 20 Jan</div>
+          </div>
+          <div style="text-align:right">
+            <div class="psi-val" style="color:var(--green)">PSI 0.09</div>
+            <div style="font-size:10px;color:var(--text3);font-family:var(--mono)">C-stat 0.81</div>
+          </div>
+          <span class="tag tag-green">Healthy</span>
+        </div>
+
+        <div class="model-row">
+          <div class="model-indicator ind-red"></div>
+          <div style="flex:1">
+            <div class="model-name">UPLIFT-v1.0 · Intervention ROI Model</div>
+            <div class="model-version">Uplift modeling · 2-model approach · 1 Feb</div>
+          </div>
+          <div style="text-align:right">
+            <div class="psi-val" style="color:var(--red)">PSI 0.44</div>
+            <div style="font-size:10px;color:var(--text3);font-family:var(--mono)">Bias flagged</div>
+          </div>
+          <span class="tag tag-red">Alert</span>
+        </div>
+
+        <div class="model-row">
+          <div class="model-indicator ind-green"></div>
+          <div style="flex:1">
+            <div class="model-name">CALIB-v1.1 · Isotonic Calibrator</div>
+            <div class="model-version">Isotonic regression · PD calibration · 15 Jan</div>
+          </div>
+          <div style="text-align:right">
+            <div class="psi-val" style="color:var(--green)">ECE 0.021</div>
+            <div style="font-size:10px;color:var(--text3);font-family:var(--mono)">Brier 0.088</div>
+          </div>
+          <span class="tag tag-green">Healthy</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: DRIFT CHART + FEATURE ENG -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <!-- PSI/KL DRIFT MONITOR -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-left">
+            <div class="card-icon" style="background:rgba(255,159,10,0.1)">📊</div>
+            Regime-Aware Drift Monitor
+          </div>
+          <span class="tag tag-grey">PSI + KL Divergence</span>
+        </div>
+
+        <svg viewBox="0 0 300 90" width="100%" style="display:block;margin-bottom:8px">
+          <defs>
+            <linearGradient id="psi-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FF9F0A" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#FF9F0A" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- threshold line at PSI 0.25 -->
+          <line x1="0" y1="45" x2="300" y2="45" stroke="rgba(255,159,10,0.4)" stroke-width="1" stroke-dasharray="4,3"/>
+          <text x="255" y="42" fill="rgba(255,159,10,0.7)" font-size="7" font-family="Geist Mono,monospace">PSI 0.25 threshold</text>
+          <!-- PSI line CRED-v2.1 -->
+          <path d="M0,70 C30,68 60,65 90,60 C120,55 150,50 180,44 C210,38 240,36 270,34 C280,33 290,33 300,32" fill="none" stroke="#FF453A" stroke-width="1.5"/>
+          <!-- PSI area -->
+          <path d="M0,70 C30,68 60,65 90,60 C120,55 150,50 180,44 C210,38 240,36 270,34 C280,33 290,33 300,32 L300,90 L0,90Z" fill="url(#psi-grad)" opacity="0.6"/>
+          <!-- CRED-v3.1 healthy drift -->
+          <path d="M0,80 C30,79 80,78 140,77 C200,76 260,76 300,77" fill="none" stroke="#30D158" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <!-- labels -->
+          <circle cx="8" cy="86" r="3" fill="#FF453A"/>
+          <text x="15" y="89" fill="rgba(255,255,255,0.4)" font-size="7" font-family="Geist Mono,monospace">CRED-v2.1 (drifting)</text>
+          <circle cx="110" cy="86" r="3" fill="#30D158"/>
+          <text x="117" y="89" fill="rgba(255,255,255,0.4)" font-size="7" font-family="Geist Mono,monospace">CRED-v3.1 (healthy)</text>
+        </svg>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <div class="num-item"><div class="num-val" style="font-size:16px;color:var(--amber)">0.31</div><div class="num-label">PSI (CRED-v2.1)</div></div>
+          <div class="num-item"><div class="num-val" style="font-size:16px;color:var(--amber)">0.18</div><div class="num-label">KL Divergence</div></div>
+          <div class="num-item"><div class="num-val" style="font-size:16px;color:var(--red)">Regime ↑</div><div class="num-label">Macro Shift</div></div>
+        </div>
+      </div>
+
+      <!-- FEATURE ENGINEERING STACK -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-left">
+            <div class="card-icon" style="background:var(--blue-dim)">🔧</div>
+            Feature Engineering Stack
+          </div>
+          <span class="tag tag-blue">Sharpened Variants</span>
+        </div>
+
+        <div style="display:flex;flex-direction:column">
+          <div class="feat-row">
+            <span class="feat-category">Repayment</span>
+            <span class="feat-generic">DPD count</span>
+            <span class="feat-arrow">→</span>
+            <span class="feat-sharp">DPD acceleration gradient</span>
+          </div>
+          <div class="feat-row">
+            <span class="feat-category">Cashflow</span>
+            <span class="feat-generic">Monthly balance avg</span>
+            <span class="feat-arrow">→</span>
+            <span class="feat-sharp">Liquidity compression ratio</span>
+          </div>
+          <div class="feat-row">
+            <span class="feat-category">Spending</span>
+            <span class="feat-generic">Category totals</span>
+            <span class="feat-arrow">→</span>
+            <span class="feat-sharp">Essential/Discretionary tilt shift</span>
+          </div>
+          <div class="feat-row">
+            <span class="feat-category">Digital</span>
+            <span class="feat-generic">App usage count</span>
+            <span class="feat-arrow">→</span>
+            <span class="feat-sharp">Financial interaction frequency</span>
+          </div>
+          <div class="feat-row">
+            <span class="feat-category">Macro</span>
+            <span class="feat-generic">None / static</span>
+            <span class="feat-arrow">→</span>
+            <span class="feat-sharp">Segment economic coefficient</span>
+          </div>
+          <div class="feat-row">
+            <span class="feat-category">Behavioral</span>
+            <span class="feat-generic">Not used</span>
+            <span class="feat-arrow">→</span>
+            <span class="feat-sharp">30/60d deviation delta (Z-score)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 5: PORTFOLIOS
+══════════════════════════════════════ -->
+<div class="screen" id="screen-portfolios">
+  <div class="page-header">
+    <div class="page-title">Portfolios</div>
+    <div class="page-sub">Cohort-level risk intelligence · Behavioral fingerprinting · Migration tracking</div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-tile k-blue"><div class="kpi-accent"></div><div class="kpi-label">Active Portfolios</div><div class="kpi-value">12</div><div class="kpi-delta"><span class="d-up">▲ +2</span><span class="d-label">this quarter</span></div></div>
+    <div class="kpi-tile k-green"><div class="kpi-accent"></div><div class="kpi-label">Total AUM</div><div class="kpi-value">₹824Cr</div><div class="kpi-delta"><span class="d-up">▲ +12%</span><span class="d-label">YTD</span></div></div>
+    <div class="kpi-tile k-amber"><div class="kpi-accent"></div><div class="kpi-label">Weighted Stress Score</div><div class="kpi-value">31.4</div><div class="kpi-delta"><span class="d-down">▲ +2.1</span><span class="d-label">vs last month</span></div></div>
+    <div class="kpi-tile k-red"><div class="kpi-accent"></div><div class="kpi-label">NPA Projection (90d)</div><div class="kpi-value">2.8%</div><div class="kpi-delta"><span class="d-down">▲ +0.3pp</span><span class="d-label">forecast</span></div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-left">
+          <div class="card-icon" style="background:var(--blue-dim)">📁</div>
+          Portfolio Cohorts
+        </div>
+        <button class="btn btn-secondary btn-sm">+ New Portfolio</button>
+      </div>
+
+      <div class="seg-tabs">
+        <div class="seg-tab active" onclick="segTab(this)">All</div>
+        <div class="seg-tab" onclick="segTab(this)">MSME</div>
+        <div class="seg-tab" onclick="segTab(this)">Consumer</div>
+        <div class="seg-tab" onclick="segTab(this)">AgriSME</div>
+      </div>
+
+      <div class="cohort-grid">
+        <div class="cohort-card" onclick="showToast('MH-West Loaded','3,284 borrowers · Confidence 83.4%','blue')">
+          <div class="cohort-name">MH-West Consumer</div>
+          <div class="cohort-size">4,821 accounts · ₹124Cr</div>
+          <div class="cohort-score" style="color:var(--green)">83.4</div>
+          <div style="margin-top:8px"><div class="bar-track"><div class="bar-fill bar-green" style="width:83%"></div></div></div>
+          <div style="font-size:10px;font-family:var(--mono);color:var(--text3);margin-top:4px">Confidence Score</div>
+        </div>
+        <div class="cohort-card" onclick="showToast('MSME-Cohort-7 Loaded','886 accounts · Stress elevated','amber')">
+          <div class="cohort-name">MSME-Cohort-7</div>
+          <div class="cohort-size">1,204 accounts · ₹198Cr</div>
+          <div class="cohort-score" style="color:var(--amber)">58.2</div>
+          <div style="margin-top:8px"><div class="bar-track"><div class="bar-fill bar-amber" style="width:58%"></div></div></div>
+          <div style="font-size:10px;font-family:var(--mono);color:var(--text3);margin-top:4px">Confidence Score</div>
+        </div>
+        <div class="cohort-card" onclick="showToast('AgriSME-North Loaded','438 accounts · Seasonal stress','amber')">
+          <div class="cohort-name">AgriSME-North</div>
+          <div class="cohort-size">892 accounts · ₹87Cr</div>
+          <div class="cohort-score" style="color:var(--amber)">62.8</div>
+          <div style="margin-top:8px"><div class="bar-track"><div class="bar-fill bar-amber" style="width:63%"></div></div></div>
+          <div style="font-size:10px;font-family:var(--mono);color:var(--text3);margin-top:4px">Confidence Score</div>
+        </div>
+        <div class="cohort-card" onclick="showToast('Consumer-Seg-B Loaded','213 accounts escalated','red')">
+          <div class="cohort-name">Consumer-Seg-B</div>
+          <div class="cohort-size">2,140 accounts · ₹92Cr</div>
+          <div class="cohort-score" style="color:var(--red)">41.6</div>
+          <div style="margin-top:8px"><div class="bar-track"><div class="bar-fill bar-red" style="width:42%"></div></div></div>
+          <div style="font-size:10px;font-family:var(--mono);color:var(--text3);margin-top:4px">Confidence Score</div>
+        </div>
+        <div class="cohort-card" onclick="showToast('GJ-Retail Loaded','1,102 accounts · Low risk','green')">
+          <div class="cohort-name">GJ-Retail</div>
+          <div class="cohort-size">1,102 accounts · ₹68Cr</div>
+          <div class="cohort-score" style="color:var(--green)">88.1</div>
+          <div style="margin-top:8px"><div class="bar-track"><div class="bar-fill bar-green" style="width:88%"></div></div></div>
+          <div style="font-size:10px;font-family:var(--mono);color:var(--text3);margin-top:4px">Confidence Score</div>
+        </div>
+        <div class="cohort-card" onclick="showToast('Micro-NBFC Loaded','620 accounts · Watch list','amber')">
+          <div class="cohort-name">Micro-NBFC</div>
+          <div class="cohort-size">620 accounts · ₹41Cr</div>
+          <div class="cohort-score" style="color:var(--amber)">55.9</div>
+          <div style="margin-top:8px"><div class="bar-track"><div class="bar-fill bar-amber" style="width:56%"></div></div></div>
+          <div style="font-size:10px;font-family:var(--mono);color:var(--text3);margin-top:4px">Confidence Score</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BEHAVIORAL FINGERPRINT -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-left">
+            <div class="card-icon" style="background:rgba(191,90,242,0.1)">🧬</div>
+            Behavioral Fingerprint
+          </div>
+          <span class="tag tag-grey">MH-West · 30d</span>
+        </div>
+        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:14px">Borrower-specific deviation vs individual baseline — not cross-sectional</div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="conf-band-row">
+            <div class="conf-band-label">Inflow Stability</div>
+            <div class="conf-band-track">
+              <div class="conf-band-fill" style="left:20%;width:60%;background:rgba(48,209,88,0.15);top:0;bottom:0;position:absolute;border-radius:2px"></div>
+              <div class="conf-band-point" style="left:70%;background:var(--green)"></div>
+            </div>
+            <div class="conf-band-val" style="color:var(--green)">83</div>
+          </div>
+          <div class="conf-band-row">
+            <div class="conf-band-label">Spend Discipline</div>
+            <div class="conf-band-track">
+              <div class="conf-band-fill" style="left:25%;width:50%;background:rgba(100,210,255,0.12);top:0;bottom:0;position:absolute;border-radius:2px"></div>
+              <div class="conf-band-point" style="left:55%;background:var(--cyan)"></div>
+            </div>
+            <div class="conf-band-val" style="color:var(--cyan)">62</div>
+          </div>
+          <div class="conf-band-row">
+            <div class="conf-band-label">Repayment Regularity</div>
+            <div class="conf-band-track">
+              <div class="conf-band-fill" style="left:30%;width:55%;background:rgba(48,209,88,0.12);top:0;bottom:0;position:absolute;border-radius:2px"></div>
+              <div class="conf-band-point" style="left:72%;background:var(--green)"></div>
+            </div>
+            <div class="conf-band-val" style="color:var(--green)">78</div>
+          </div>
+          <div class="conf-band-row">
+            <div class="conf-band-label">Bounce Proximity</div>
+            <div class="conf-band-track">
+              <div class="conf-band-fill" style="left:10%;width:40%;background:rgba(255,159,10,0.12);top:0;bottom:0;position:absolute;border-radius:2px"></div>
+              <div class="conf-band-point" style="left:38%;background:var(--amber)"></div>
+            </div>
+            <div class="conf-band-val" style="color:var(--amber)">34</div>
+          </div>
+          <div class="conf-band-row">
+            <div class="conf-band-label">Digital Engagement</div>
+            <div class="conf-band-track">
+              <div class="conf-band-fill" style="left:35%;width:50%;background:rgba(48,209,88,0.1);top:0;bottom:0;position:absolute;border-radius:2px"></div>
+              <div class="conf-band-point" style="left:68%;background:var(--green)"></div>
+            </div>
+            <div class="conf-band-val" style="color:var(--green)">74</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATE DISTRIBUTION by SEGMENT -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-left">
+            <div class="card-icon" style="background:var(--red-dim)">📊</div>
+            State Mix by Segment
+          </div>
+        </div>
+
+        <table class="dt">
+          <thead>
+            <tr>
+              <th>Segment</th>
+              <th>Healthy</th>
+              <th>Tight</th>
+              <th>Strained</th>
+              <th>Distressed</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tag tag-blue">Consumer</span></td>
+              <td style="font-family:var(--mono);color:var(--green)">74.2%</td>
+              <td style="font-family:var(--mono);color:var(--amber)">16.1%</td>
+              <td style="font-family:var(--mono);color:#FF6B35">7.2%</td>
+              <td style="font-family:var(--mono);color:var(--red)">2.5%</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-amber">MSME</span></td>
+              <td style="font-family:var(--mono);color:var(--green)">58.8%</td>
+              <td style="font-family:var(--mono);color:var(--amber)">22.4%</td>
+              <td style="font-family:var(--mono);color:#FF6B35">12.1%</td>
+              <td style="font-family:var(--mono);color:var(--red)">6.7%</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-purple">AgriSME</span></td>
+              <td style="font-family:var(--mono);color:var(--green)">61.4%</td>
+              <td style="font-family:var(--mono);color:var(--amber)">19.8%</td>
+              <td style="font-family:var(--mono);color:#FF6B35">11.3%</td>
+              <td style="font-family:var(--mono);color:var(--red)">7.5%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 6: BENCHMARKS
+══════════════════════════════════════ -->
+<div class="screen" id="screen-benchmarks">
+  <div class="page-header">
+    <div class="page-title">Benchmarks</div>
+    <div class="page-sub">Cross-lender anonymized stress matrix · Industry percentile rankings · Moat validation</div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-tile k-green"><div class="kpi-accent"></div><div class="kpi-label">Industry Percentile</div><div class="kpi-value">87th</div><div class="kpi-delta"><span class="d-up">▲ +4pp</span><span class="d-label">this quarter</span></div></div>
+    <div class="kpi-tile k-blue"><div class="kpi-accent"></div><div class="kpi-label">Lead Time Advantage</div><div class="kpi-value">+28d</div><div class="kpi-delta"><span class="d-up">▲ +6d</span><span class="d-label">vs peer median</span></div></div>
+    <div class="kpi-tile k-green"><div class="kpi-accent"></div><div class="kpi-label">Precision vs Peers</div><div class="kpi-value">+14pp</div><div class="kpi-delta"><span class="d-up">▲ +2pp</span><span class="d-label">this month</span></div></div>
+    <div class="kpi-tile k-amber"><div class="kpi-accent"></div><div class="kpi-label">Peer Lenders Monitored</div><div class="kpi-value">24</div><div class="kpi-delta"><span class="d-flat">Anonymized</span><span class="d-label">cross-lender</span></div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-left">
+          <div class="card-icon" style="background:var(--blue-dim)">🏆</div>
+          Precision Benchmark vs Peers
+        </div>
+        <span class="tag tag-green">You outperform</span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <div class="bench-row">
+          <div class="bench-name" style="color:var(--cyan);font-weight:700">CreditOS (You)</div>
+          <div class="bench-track"><div class="bench-fill" style="width:88%;background:linear-gradient(90deg,var(--blue),var(--cyan))"></div></div>
+          <div class="bench-val" style="color:var(--cyan)">88%</div>
+        </div>
+        <div class="bench-row">
+          <div class="bench-name">Peer Group A</div>
+          <div class="bench-track"><div class="bench-fill" style="width:74%;background:rgba(255,255,255,0.2)"></div></div>
+          <div class="bench-val">74%</div>
+        </div>
+        <div class="bench-row">
+          <div class="bench-name">Peer Group B</div>
+          <div class="bench-track"><div class="bench-fill" style="width:71%;background:rgba(255,255,255,0.18)"></div></div>
+          <div class="bench-val">71%</div>
+        </div>
+        <div class="bench-row">
+          <div class="bench-name">Peer Group C</div>
+          <div class="bench-track"><div class="bench-fill" style="width:68%;background:rgba(255,255,255,0.16)"></div></div>
+          <div class="bench-val">68%</div>
+        </div>
+        <div class="bench-row">
+          <div class="bench-name">Industry Median</div>
+          <div class="bench-track"><div class="bench-fill" style="width:63%;background:rgba(255,255,255,0.12)"></div></div>
+          <div class="bench-val">63%</div>
+        </div>
+        <div class="bench-row">
+          <div class="bench-name">Industry Laggard</div>
+          <div class="bench-track"><div class="bench-fill" style="width:44%;background:rgba(255,69,58,0.3)"></div></div>
+          <div class="bench-val" style="color:var(--red)">44%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-left">
+          <div class="card-icon" style="background:var(--green-dim)">🧠</div>
+          Investor Readiness Check
+        </div>
+        <span class="tag tag-green">All Pass</span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface);border-radius:var(--r-sm)">
+          <span style="font-size:13px">Can you quantify lead time gain?</span>
+          <span class="tag tag-green">✓ Yes · +28d</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface);border-radius:var(--r-sm)">
+          <span style="font-size:13px">Can you show precision uplift?</span>
+          <span class="tag tag-green">✓ Yes · +14pp</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface);border-radius:var(--r-sm)">
+          <span style="font-size:13px">Can you simulate NPA savings?</span>
+          <span class="tag tag-green">✓ Yes · ₹3.2L</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface);border-radius:var(--r-sm)">
+          <span style="font-size:13px">Can you defend compliance?</span>
+          <span class="tag tag-green">✓ RBI Ready</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface);border-radius:var(--r-sm)">
+          <span style="font-size:13px">Can it scale API-first?</span>
+          <span class="tag tag-green">✓ REST + gRPC</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface);border-radius:var(--r-sm)">
+          <span style="font-size:13px">Is there behavioral moat?</span>
+          <span class="tag tag-green">✓ Fingerprinting</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface);border-radius:var(--r-sm)">
+          <span style="font-size:13px">Cross-lender network effect?</span>
+          <span class="tag tag-amber">~ In Progress</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOAT COMPONENTS -->
+  <div class="card mt24">
+    <div class="card-title">
+      <div class="card-title-left">
+        <div class="card-icon" style="background:var(--purple-dim)">🏰</div>
+        Real Moat Components
+      </div>
+    </div>
+    <div class="g4">
+      <div style="background:var(--surface);border-radius:var(--r-md);padding:16px;border:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:6px">🧬 Behavioral Fingerprinting</div>
+        <div style="font-size:11px;color:var(--text2)">Borrower-level uniqueness that compounds with more data — hard to replicate</div>
+      </div>
+      <div style="background:var(--surface);border-radius:var(--r-md);padding:16px;border:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px">🔀 Migration Modeling</div>
+        <div style="font-size:11px;color:var(--text2)">Path-dependent memory means predictions get better with borrower history</div>
+      </div>
+      <div style="background:var(--surface);border-radius:var(--r-md);padding:16px;border:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px">📈 Intervention Lift Data</div>
+        <div style="font-size:11px;color:var(--text2)">Feedback loop from interventions trains uplift model continuously</div>
+      </div>
+      <div style="background:var(--surface);border-radius:var(--r-md);padding:16px;border:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:6px">🗺 Cross-Lender Heatmap</div>
+        <div style="font-size:11px;color:var(--text2)">Anonymized network benchmark creates data network effect</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 7: REPORTS
+══════════════════════════════════════ -->
+<div class="screen" id="screen-reports">
+  <div class="page-header">
+    <div class="page-title">Reports & Audit Trail</div>
+    <div class="page-sub">RBI-ready decision logs · Full input-output snapshots · Regulatory exports</div>
+  </div>
+
+  <div class="g32">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <!-- REPORT LIBRARY -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-left">
+            <div class="card-icon" style="background:var(--blue-dim)">📋</div>
+            Report Library
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="showToast('Report Generated','PDF ready for download','green')">+ Generate Report</button>
+        </div>
+
+        <div class="report-card" onclick="showToast('Monthly Risk Report','Generating PDF…','blue')">
+          <div class="report-icon-wrap" style="background:var(--blue-dim)">📊</div>
+          <div class="report-info">
+            <div class="report-name">Monthly Risk Intelligence Report</div>
+            <div class="report-meta">Feb 2026 · 48 pages · PDF + XLSX</div>
+          </div>
+          <div class="report-actions">
+            <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation()">View</button>
+            <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation()">Download</button>
+          </div>
+        </div>
+
+        <div class="report-card" onclick="showToast('RBI Submission Pack','Audit logs included · 7yr retention','green')">
+          <div class="report-icon-wrap" style="background:var(--green-dim)">🏛️</div>
+          <div class="report-info">
+            <div class="report-name">RBI Submission Pack — Q4 FY25</div>
+            <div class="report-meta">Decision logs · SHAP values · Full audit trail</div>
+          </div>
+          <div class="report-actions">
+            <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation()">View</button>
+            <button class="btn btn-success btn-sm" onclick="event.stopPropagation()">Submit</button>
+          </div>
+        </div>
+
+        <div class="report-card" onclick="showToast('Model Performance Report','AUC trends · Drift history','blue')">
+          <div class="report-icon-wrap" style="background:var(--purple-dim)">🤖</div>
+          <div class="report-info">
+            <div class="report-name">Model Governance Report</div>
+            <div class="report-meta">Drift analysis · Bias audit · Calibration metrics</div>
+          </div>
+          <div class="report-actions">
+            <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation()">View</button>
+            <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation()">Download</button>
+          </div>
+        </div>
+
+        <div class="report-card" onclick="showToast('Portfolio Stress Report','Cohort-level stress distribution','amber')">
+          <div class="report-icon-wrap" style="background:var(--amber-dim)">📈</div>
+          <div class="report-info">
+            <div class="report-name">Portfolio Stress Distribution Report</div>
+            <div class="report-meta">4-state migration matrix · Velocity rankings</div>
+          </div>
+          <div class="report-actions">
+            <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation()">View</button>
+            <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation()">Download</button>
+          </div>
+        </div>
+
+        <div class="report-card" onclick="showToast('Intervention ROI Report','Uplift modeling results','green')">
+          <div class="report-icon-wrap" style="background:var(--green-dim)">🎯</div>
+          <div class="report-info">
+            <div class="report-name">Intervention Uplift Report</div>
+            <div class="report-meta">Counterfactual analysis · ROI per action type</div>
+          </div>
+          <div class="report-actions">
+            <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation()">View</button>
+            <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation()">Download</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUDIT LOG -->
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-left">
+          <div class="card-icon" style="background:var(--green-dim)">🔐</div>
+          RBI Audit Log
+        </div>
+        <span class="tag tag-green">7yr Retention</span>
+      </div>
+      <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:14px">Full input-output snapshots · SHAP values · Decision rationale</div>
+
+      <div style="display:flex;flex-direction:column">
+        <div class="audit-row">
+          <div class="audit-time">10:42:18</div>
+          <div class="audit-icon" style="background:var(--red-dim)">🚨</div>
+          <div class="audit-content">
+            <div class="audit-title">#BRW-9928 → Distressed · Intervention triggered</div>
+            <div class="audit-detail">CRED-v3.1 · Stress 82.4% · Velocity 0.91 · 4 drivers logged</div>
+          </div>
+        </div>
+        <div class="audit-row">
+          <div class="audit-time">10:38:44</div>
+          <div class="audit-icon" style="background:var(--amber-dim)">⚠️</div>
+          <div class="audit-content">
+            <div class="audit-title">CRED-v2.1 drift threshold breached</div>
+            <div class="audit-detail">PSI 0.31 > 0.25 · KL 0.18 · Regime shift detected · Retrain queued</div>
+          </div>
+        </div>
+        <div class="audit-row">
+          <div class="audit-time">10:21:09</div>
+          <div class="audit-icon" style="background:var(--green-dim)">✅</div>
+          <div class="audit-content">
+            <div class="audit-title">#BRW-2201 → Healthy after restructure intervention</div>
+            <div class="audit-detail">Uplift model confirmed · ROI ₹1.2L · Full SHAP snapshot stored</div>
+          </div>
+        </div>
+        <div class="audit-row">
+          <div class="audit-time">09:55:33</div>
+          <div class="audit-icon" style="background:var(--blue-dim)">📊</div>
+          <div class="audit-content">
+            <div class="audit-title">Markov matrix recalibrated — daily run complete</div>
+            <div class="audit-detail">4,821 accounts re-scored · 38 state transitions recorded</div>
+          </div>
+        </div>
+        <div class="audit-row">
+          <div class="audit-time">09:12:01</div>
+          <div class="audit-icon" style="background:var(--amber-dim)">🔍</div>
+          <div class="audit-content">
+            <div class="audit-title">Bias alert: gender feature in UPLIFT-v1.0</div>
+            <div class="audit-detail">Disparate impact ratio 0.72 · Feature review flagged · Team notified</div>
+          </div>
+        </div>
+        <div class="audit-row">
+          <div class="audit-time">08:30:00</div>
+          <div class="audit-icon" style="background:var(--blue-dim)">🔄</div>
+          <div class="audit-content">
+            <div class="audit-title">Daily batch processing completed</div>
+            <div class="audit-detail">4,821 borrowers · 142 new stress flags · All snapshots archived</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 8: SETTINGS
+══════════════════════════════════════ -->
+<div class="screen" id="screen-settings">
+  <div class="page-header">
+    <div class="page-title">Settings & Integrations</div>
+    <div class="page-sub">Data connectors · Model governance · Tiered schema · Access management</div>
+  </div>
+
+  <div class="g2">
+    <!-- LEFT -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <!-- DATA CONNECTORS -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-left">
+            <div class="card-icon" style="background:var(--blue-dim)">🔌</div>
+            Data Connectors
+          </div>
+          <button class="btn btn-secondary btn-sm">+ Add Connector</button>
+        </div>
+        <div class="conn-grid">
+          <div class="conn-card">
+            <div class="conn-icon">☁️</div>
+            <div class="conn-name">AWS S3</div>
+            <div class="conn-desc">Data lake sync</div>
+            <div class="conn-status" style="color:var(--green)">● Connected</div>
+          </div>
+          <div class="conn-card">
+            <div class="conn-icon">⚡</div>
+            <div class="conn-name">Databricks</div>
+            <div class="conn-desc">ML pipelines</div>
+            <div class="conn-status" style="color:var(--green)">● Connected</div>
+          </div>
+          <div class="conn-card">
+            <div class="conn-icon">☁️</div>
+            <div class="conn-name">Salesforce</div>
+            <div class="conn-desc">CRM sync</div>
+            <div class="conn-status" style="color:var(--amber)">⚠ Partial</div>
+          </div>
+          <div class="conn-card" onclick="showToast('Oracle Connector','Configuration wizard opening…','blue')">
+            <div class="conn-icon">🏛️</div>
+            <div class="conn-name">Oracle ERP</div>
+            <div class="conn-desc">Financial data</div>
+            <div class="conn-status" style="color:var(--text3)">○ Not connected</div>
+          </div>
+          <div class="conn-card">
+            <div class="conn-icon">📊</div>
+            <div class="conn-name">CIBIL Bureau</div>
+            <div class="conn-desc">Credit bureau</div>
+            <div class="conn-status" style="color:var(--green)">● Connected</div>
+          </div>
+          <div class="conn-card">
+            <div class="conn-icon">🏦</div>
+            <div class="conn-name">Account Aggregator</div>
+            <div class="conn-desc">Bank statements</div>
+            <div class="conn-status" style="color:var(--green)">● Connected</div>
+          </div>
+        </div>
+
+        <!-- API Keys -->
+        <div class="settings-section" style="margin-top:20px">API Keys</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Production API Key</div>
+            <div class="settings-desc" style="font-family:var(--mono)">cos_prod_●●●●●●●●●●●●abc4</div>
+          </div>
+          <button class="btn btn-secondary btn-sm">Regenerate</button>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Sandbox API Key</div>
+            <div class="settings-desc" style="font-family:var(--mono)">cos_sand_●●●●●●●●●●●●def8</div>
+          </div>
+          <button class="btn btn-secondary btn-sm">Regenerate</button>
+        </div>
+      </div>
+
+      <!-- TIERED DATA SCHEMA -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-left">
+            <div class="card-icon" style="background:var(--purple-dim)">🗄️</div>
+            Minimum Data Schema (Tiered)
+          </div>
+        </div>
+        <div class="g3">
+          <div class="tier-card tier-lite">
+            <div class="tier-name" style="color:var(--green)">Lite</div>
+            <div class="tier-desc">Quick onboarding pilot</div>
+            <div class="tier-fields">
+              <div class="tier-field">EMI history</div>
+              <div class="tier-field">Loan amount</div>
+              <div class="tier-field">Tenure</div>
+              <div class="tier-field">DPD</div>
+              <div class="tier-field">Monthly balance</div>
+            </div>
+          </div>
+          <div class="tier-card tier-advanced">
+            <div class="tier-name" style="color:var(--blue)">Advanced</div>
+            <div class="tier-desc">Full behavioral engine</div>
+            <div class="tier-fields">
+              <div class="tier-field">Txn inflow/outflow</div>
+              <div class="tier-field">Bounce logs</div>
+              <div class="tier-field">Bureau summary</div>
+              <div class="tier-field">Device signals</div>
+              <div class="tier-field">App engagement</div>
+            </div>
+          </div>
+          <div class="tier-card tier-inst">
+            <div class="tier-name" style="color:var(--purple)">Institutional</div>
+            <div class="tier-desc">Full institutional grade</div>
+            <div class="tier-fields">
+              <div class="tier-field">Salary patterns</div>
+              <div class="tier-field">GST flows</div>
+              <div class="tier-field">Macro index</div>
+              <div class="tier-field">Cross-product exposure</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <!-- MODEL GOVERNANCE CONFIG -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-left">
+            <div class="card-icon" style="background:var(--amber-dim)">⚙️</div>
+            Model Governance Config
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Drift Alert Threshold (PSI)</div>
+            <div class="settings-desc">Alert when PSI exceeds this value</div>
+          </div>
+          <input type="number" value="0.25" class="inp" style="width:70px">
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Auto-retrain on drift</div>
+            <div class="settings-desc">Queue retrain when threshold breached</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Regime-aware drift detection</div>
+            <div class="settings-desc">Factor macro regime into drift thresholds</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">KL Divergence monitoring</div>
+            <div class="settings-desc">Track feature distribution shift via KL</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Bias monitoring (protected attributes)</div>
+            <div class="settings-desc">Check gender, age, location disparity</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">SHAP explainability (all decisions)</div>
+            <div class="settings-desc">Top 3 quantified drivers logged</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Isotonic calibration frequency</div>
+            <div class="settings-desc">Recalibrate PD output probability</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="number" value="7" class="inp" style="width:50px">
+            <span style="font-size:12px;color:var(--text2)">days</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DATA GOVERNANCE -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-left">
+            <div class="card-icon" style="background:var(--green-dim)">🛡️</div>
+            Data Governance
+          </div>
+          <span class="tag tag-green">RBI Compliant</span>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Data residency</div>
+            <div class="settings-desc">All data stored in India (ap-south-1)</div>
+          </div>
+          <span class="tag tag-green">RBI Compliant</span>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">PII anonymization</div>
+            <div class="settings-desc">Mask PII in logs and exports</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Audit log retention</div>
+            <div class="settings-desc">Full decision audit trail archived</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="number" value="7" class="inp" style="width:50px">
+            <span style="font-size:12px;color:var(--text2)">years</span>
+          </div>
+        </div>
+
+        <!-- ROLES TABLE -->
+        <div class="settings-section">Roles & Access</div>
+        <table class="dt">
+          <thead><tr><th>User</th><th>Role</th><th>Last Active</th><th></th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Ashneer K.</td>
+              <td><span class="tag tag-red">Admin</span></td>
+              <td style="font-family:var(--mono);font-size:11px;color:var(--green)">Now</td>
+              <td><button class="btn btn-secondary btn-sm">Edit</button></td>
+            </tr>
+            <tr>
+              <td>Risk Team</td>
+              <td><span class="tag tag-amber">Risk Analyst</span></td>
+              <td style="font-family:var(--mono);font-size:11px">1h ago</td>
+              <td><button class="btn btn-secondary btn-sm">Edit</button></td>
+            </tr>
+            <tr>
+              <td>Collections</td>
+              <td><span class="tag tag-blue">Ops User</span></td>
+              <td style="font-family:var(--mono);font-size:11px">3h ago</td>
+              <td><button class="btn btn-secondary btn-sm">Edit</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- TOAST STACK -->
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+/* ══════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════ */
+function nav(screenId, el) {
+  // Hide all screens
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  // Remove active from all nav items
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  // Show target screen
+  const screen = document.getElementById('screen-' + screenId);
+  if (screen) screen.classList.add('active');
+
+  // Activate the right nav item
+  if (el) {
+    el.classList.add('active');
+  } else {
+    // Find matching nav item by screen name in onclick
+    document.querySelectorAll('.nav-item').forEach(item => {
+      const oc = item.getAttribute('onclick') || '';
+      if (oc.includes("'" + screenId + "'")) {
+        item.classList.add('active');
+      }
+    });
+  }
+}
+
+/* ══════════════════════════════════════
+   SEG TAB TOGGLE
+══════════════════════════════════════ */
+function segTab(el) {
+  el.parentElement.querySelectorAll('.seg-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ══════════════════════════════════════
+   FILTER BTN TOGGLE
+══════════════════════════════════════ */
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    this.closest('.filter-row').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+/* ══════════════════════════════════════
+   SLIDER HELPERS
+══════════════════════════════════════ */
+function updateSim(el, targetId, formatter) {
+  document.getElementById(targetId).textContent = formatter(el.value);
+  recalcSim();
+}
+
+function updateSimRaw(el, targetId) {
+  const labels = ['','Very Low (0.08)','Low (0.18)','Moderate (0.38)','High (0.61)','Very High (0.84)','Extreme (0.97)'];
+  document.getElementById(targetId).textContent = labels[el.value] || el.value;
+  recalcSim();
+}
+
+function updateScenario(el) {
+  const labels = ['','Base','Moderate Stress','High Stress'];
+  document.getElementById('sv-market').textContent = labels[el.value] || el.value;
+  recalcSim();
+}
+
+function recalcSim() {
+  const options = ['₹2.8L','₹3.2L','₹3.8L','₹4.1L','₹2.6L','₹4.4L','₹3.5L'];
+  document.getElementById('sim-result').textContent = options[Math.floor(Math.random() * options.length)];
+}
+
+/* ══════════════════════════════════════
+   TOAST SYSTEM
+══════════════════════════════════════ */
+function showToast(title, body, type = 'blue') {
+  const stack = document.getElementById('toastStack');
+  const toast = document.createElement('div');
+  toast.className = `toast t-${type}`;
+  toast.innerHTML = `<div class="toast-title">${title}</div><div class="toast-body">${body}</div>`;
+  stack.appendChild(toast);
+  setTimeout(() => {
+    toast.style.transition = 'all 0.3s ease';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(60px)';
+    setTimeout(() => toast.remove(), 320);
+  }, 3500);
+}
+
+/* ══════════════════════════════════════
+   AUTO TOASTS ON LOAD
+══════════════════════════════════════ */
+setTimeout(() => showToast('🚨 New Stress Flag', '#BRW-9928 crossed pre-delinquency threshold', 'red'), 1200);
+setTimeout(() => showToast('📊 Markov Engine', 'Daily transition matrix recalibrated — 38 migrations', 'blue'), 3800);
+setTimeout(() => showToast('✅ Intervention Success', 'BRW-2201 recovered to Healthy after restructure', 'green'), 6400);
+</script>
+</body>
+</html>
